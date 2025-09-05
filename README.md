@@ -111,3 +111,15 @@ All app routes are grouped together and exported into single type as `AppType` i
 - [Scalar Documentation](https://github.com/scalar/scalar/tree/main/?tab=readme-ov-file#documentation)
   - [Themes / Layout](https://github.com/scalar/scalar/blob/main/documentation/themes.md)
   - [Configuration](https://github.com/scalar/scalar/blob/main/documentation/configuration.md)
+
+
+## Base de Datos
+### Generar
+```shell
+pnpm drizzle-kit generate --config=drizzle-pg.config.ts
+```
+
+### Migrar
+```shell
+pnpm drizzle-kit migrate --config=drizzle-pg.config.ts
+```
