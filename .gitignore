@@ -7,6 +7,7 @@
 .idea/workspace.xml
 .idea/usage.statistics.xml
 .idea/shelf
+pnpm-lock.yaml
 
 # deps
 node_modules/
@@ -32,6 +33,7 @@ dev.db
 test.db
 .vercel
 dist
-
 .dev.vars
-pnpm-lock.yaml
+
+# migrations
+**/migrations/
