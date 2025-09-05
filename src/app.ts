@@ -11,7 +11,7 @@ configureOpenAPI(app);
 const routes = [
   index,
   tasks,
-  keys
+  keys,
 ] as const;
 
 routes.forEach((route) => {

@@ -22,9 +22,8 @@ export default function createApp() {
   app.use(requestId())
     .use("/favicon.ico", serveStatic({ path: "./favicon.ico" }))
     .use("*", serveStatic({ root: "./static" }))
-    // .use(serveEmojiFavicon("📝")) 
+    // .use(serveEmojiFavicon("📝"))
     .use(pinoLogger());
-
   app.notFound(notFound);
   app.onError(onError);
   return app;
