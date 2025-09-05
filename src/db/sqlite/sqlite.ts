@@ -6,7 +6,7 @@ import * as schema from "./schema";
 
 const sqlite = drizzle({
   connection: {
-    url: env.DATABASE_URL,
+    url: "file:dev.db",
     authToken: env.DATABASE_AUTH_TOKEN,
   },
   casing: "snake_case",
