@@ -1,8 +1,8 @@
-import { drizzle } from 'drizzle-orm/node-postgres';
+import { drizzle } from "drizzle-orm/node-postgres";
 
 import env from "@/env";
 
-import * as schema from "./schema";
+import * as schema from "./schemas/users/schema";
 
 const postgres = drizzle({
   connection: {
@@ -17,7 +17,8 @@ async function logDatabaseTime() {
   try {
     const result = await postgres.execute("SELECT NOW() as current_time");
     console.log("DB Current Time:", result.rows[0].current_time);
-  } catch (error) {
+  }
+  catch (error) {
     console.error("Error:", error);
   }
 }
