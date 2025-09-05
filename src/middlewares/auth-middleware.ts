@@ -1,6 +1,11 @@
 import type { Context, Next } from "hono";
 
-const authMiddleware = async (c: Context, next: Next) => {
+/**
+ * Middleware de autorización por Bearer Token.
+ * - Valida header Authorization: "Bearer <token>"
+ * - Compara contra process.env.API_TOKEN (puedes cambiar a JWT si quieres)
+ */
+export const authMiddleware = async (c: Context, next: Next) => {
   const authHeader = c.req.header("Authorization");
 
   if (!authHeader?.startsWith("Bearer ")) {
@@ -9,8 +14,8 @@ const authMiddleware = async (c: Context, next: Next) => {
 
   const token = authHeader.substring(7); // remove "Bearer "
 
-  // Simple check (replace with JWT or your logic)
-  if (token !== process.env.API_TOKEN) {
+  // Simple check (reemplazar por JWT en un futuro)
+  if (token !== (process.env.API_TOKEN || "pruebadebearer")) {
     return c.json({ error: "Unauthorized" }, 401);
   }
 

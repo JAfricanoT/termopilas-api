@@ -4,12 +4,10 @@ import { authMiddleware } from "@/middlewares/auth-middleware";
 import * as handlers from "./users.handlers";
 import * as routes from "./users.routes";
 
-const router = createRouter()
-
-router.use(authMiddleware)
-
-router
-  .openapi(routes.allUsers, authMiddleware, handlers.allUsers)
+const userRouter = createRouter()
+userRouter.use(authMiddleware);
+userRouter
+  .openapi(routes.allUsers, handlers.allUsers)
   .openapi(routes.createUser, handlers.createUser)
 
-export default router;
+export default userRouter;
