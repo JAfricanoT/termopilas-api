@@ -19,6 +19,10 @@ export function createRouter() {
 
 export default function createApp() {
   const app = createRouter();
+  app.openAPIRegistry.registerComponent("securitySchemes", "bearerAuth", {
+    type: "http",
+    scheme: "bearer",
+  });  
   app.use(requestId())
     .use("/favicon.ico", serveStatic({ path: "./favicon.ico" }))
     .use("*", serveStatic({ root: "./static" }))
