@@ -3,6 +3,7 @@ import createApp from "@/lib/create-app";
 import index from "@/routes/index.route";
 import keys from "@/routes/keys/keys.index";
 import tasks from "@/routes/tasks/tasks.index";
+import users from "@/routes/users/users.index";
 
 const app = createApp();
 
@@ -12,6 +13,7 @@ const routes = [
   index,
   tasks,
   keys,
+  users,
 ] as const;
 
 routes.forEach((route) => {
