@@ -9,7 +9,7 @@ export default function configureOpenAPI(app: AppOpenAPI) {
     openapi: "3.0.0",
     info: {
       version: packageJSON.version,
-      title: "Tasks API",
+      title: "LEXO API - UJAP",
     },
   });
 
@@ -18,7 +18,7 @@ export default function configureOpenAPI(app: AppOpenAPI) {
     Scalar({
       url: "/doc",
       theme: "kepler",
-      layout: "classic",
+      layout: "modern",
       defaultHttpClient: {
         targetKey: "js",
         clientKey: "fetch",
