@@ -17,6 +17,7 @@ node_modules/
 
 # logs
 logs/
+!**/schemas/logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
