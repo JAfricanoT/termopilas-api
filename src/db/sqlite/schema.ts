@@ -1,4 +1,3 @@
-import { z } from "@hono/zod-openapi";
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 

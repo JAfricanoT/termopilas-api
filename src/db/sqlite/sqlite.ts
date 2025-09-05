@@ -4,7 +4,7 @@ import env from "@/env";
 
 import * as schema from "./schema";
 
-const db = drizzle({
+const sqlite = drizzle({
   connection: {
     url: env.DATABASE_URL,
     authToken: env.DATABASE_AUTH_TOKEN,
@@ -13,4 +13,4 @@ const db = drizzle({
   schema,
 });
 
-export default db;
+export default sqlite;
