@@ -1,8 +1,9 @@
 import type { Schema } from "hono";
 
+import { serveStatic } from "@hono/node-server/serve-static";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { requestId } from "hono/request-id";
-import { notFound, onError, serveEmojiFavicon } from "stoker/middlewares";
+import { notFound, onError } from "stoker/middlewares";
 import { defaultHook } from "stoker/openapi";
 
 import { pinoLogger } from "@/middlewares/pino-logger";
@@ -19,7 +20,9 @@ export function createRouter() {
 export default function createApp() {
   const app = createRouter();
   app.use(requestId())
-    .use(serveEmojiFavicon("📝"))
+    .use("/favicon.ico", serveStatic({ path: "./favicon.ico" }))
+    .use("*", serveStatic({ root: "./static" }))
+    // .use(serveEmojiFavicon("📝")) 
     .use(pinoLogger());
 
   app.notFound(notFound);
