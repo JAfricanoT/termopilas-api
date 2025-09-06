@@ -31,18 +31,14 @@ export const user_information = pgTable("user_information", {
 });
 
 export const selectUserSchema = toZodV4SchemaTyped(createSelectSchema(users));
-export const insertUserSchema = toZodV4SchemaTyped(createInsertSchema(
-  users,
-  {
-    lida_id: field => field.min(14).max(21),
-  },
-).required({
-  lida_id: true,
-  role_id: true,
-}).omit({
-  id: true,
-  created_at: true,
-}));
+export const insertUserSchema = toZodV4SchemaTyped(createInsertSchema(users)
+  .required({
+    lida_id: true,
+    role_id: true,
+  }).omit({
+    id: true,
+    created_at: true,
+  }));
 
 // @ts-expect-error partial exists on zod v4 type
 export const patchUserSchema = insertUserSchema.partial();
@@ -74,9 +70,11 @@ export const patchUserInformationSchema = insertUserInformationSchema.partial();
 
 export const selectNewUserSchema = z.object({
   user: selectUserSchema,
-  status: selectUserStatusSchema,
+  status: selectUserStatusSchema.optional(),
+  information: selectUserInformationSchema.optional(),
 });
 export const insertNewUserSchema = z.object({
   user: insertUserSchema,
   status: insertUserStatusSchema,
+  information: insertUserInformationSchema.optional(),
 });

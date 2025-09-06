@@ -15,11 +15,17 @@ export const allUsers: AppRouteHandler<AllUsersRoute> = async (c) => {
 };
 
 export const createUser: AppRouteHandler<CreateUserRoute> = async (c) => {
-  const { user, status } = c.req.valid("json");
+  const { user, status, information } = c.req.valid("json");
   const [insertedUser] = await postgres.insert(users).values(user).returning();
   status.user_id = insertedUser.id;
   const [insertedStatus] = await postgres.insert(user_status).values(status).returning();
   const inserted = { user: insertedUser, status: insertedStatus };
+  if (information) {
+    information.user_id = insertedUser.id;
+    const [insertedInformation] = await postgres.insert(user_information).values(information).returning();
+    const inserted = { user: insertedUser, status: insertedStatus, information: insertedInformation };
+    return c.json(inserted, HttpStatusCodes.OK);
+  }
   return c.json(inserted, HttpStatusCodes.OK);
 };
 
