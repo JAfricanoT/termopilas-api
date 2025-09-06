@@ -19,18 +19,14 @@ export const tasks = sqliteTable("tasks", {
 
 export const selectTasksSchema = toZodV4SchemaTyped(createSelectSchema(tasks));
 
-export const insertTasksSchema = toZodV4SchemaTyped(createInsertSchema(
-  tasks,
-  {
-    name: field => field.min(1).max(500),
-  },
-).required({
-  done: true,
-}).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-}));
+export const insertTasksSchema = toZodV4SchemaTyped(createInsertSchema(tasks)
+  .required({
+    done: true,
+  }).omit({
+    id: true,
+    createdAt: true,
+    updatedAt: true,
+  }));
 
 // @ts-expect-error partial exists on zod v4 type
 export const patchTasksSchema = insertTasksSchema.partial();

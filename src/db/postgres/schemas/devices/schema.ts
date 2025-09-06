@@ -24,19 +24,15 @@ export const device_status = pgTable("device_status", {
 });
 
 export const selectDeviceSchema = toZodV4SchemaTyped(createSelectSchema(devices));
-export const insertDeviceSchema = toZodV4SchemaTyped(createInsertSchema(
-  devices,
-  {
-    device_id: field => field.min(14).max(21),
-  },
-).required({
-  device_id: true,
-  token: true,
-  role_id: true,
-}).omit({
-  id: true,
-  created_at: true,
-}));
+export const insertDeviceSchema = toZodV4SchemaTyped(createInsertSchema(devices)
+  .required({
+    device_id: true,
+    token: true,
+    role_id: true,
+  }).omit({
+    id: true,
+    created_at: true,
+  }));
 
 // @ts-expect-error partial exists on zod v4 type
 export const patchDeviceSchema = insertDeviceSchema.partial();
