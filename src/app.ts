@@ -1,8 +1,8 @@
 import configureOpenAPI from "@/lib/configure-open-api";
 import createApp from "@/lib/create-app";
+import devices from "@/routes/devices/devices.index";
 import index from "@/routes/index.route";
 import keys from "@/routes/keys/keys.index";
-import tasks from "@/routes/tasks/tasks.index";
 import users from "@/routes/users/users.index";
 
 const app = createApp();
@@ -11,9 +11,9 @@ configureOpenAPI(app);
 
 const routes = [
   index,
-  tasks,
-  keys,
   users,
+  devices,
+  keys,
 ] as const;
 
 routes.forEach((route) => {

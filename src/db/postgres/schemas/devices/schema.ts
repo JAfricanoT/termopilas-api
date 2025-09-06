@@ -1,8 +1,12 @@
 import { boolean, integer, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
+import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import z from "zod";
+
+import { toZodV4SchemaTyped } from "@/lib/zod-utils";
+
 import { device_roles } from "../roles/schema";
 import { users } from "../users/schema";
 
-// ! DEVICE
 export const devices = pgTable("devices", {
   id: serial().primaryKey().notNull(),
   device_id: text().notNull().unique(),
@@ -17,4 +21,42 @@ export const device_status = pgTable("device_status", {
   is_active: boolean().notNull().default(false),
   created_by: integer().notNull().references(() => users.id),
   created_at: timestamp().defaultNow(),
+});
+
+export const selectDeviceSchema = toZodV4SchemaTyped(createSelectSchema(devices));
+export const insertDeviceSchema = toZodV4SchemaTyped(createInsertSchema(
+  devices,
+  {
+    device_id: field => field.min(14).max(21),
+  },
+).required({
+  device_id: true,
+  token: true,
+  role_id: true,
+}).omit({
+  id: true,
+  created_at: true,
+}));
+
+// @ts-expect-error partial exists on zod v4 type
+export const patchDeviceSchema = insertDeviceSchema.partial();
+
+export const selectDeviceStatusSchema = toZodV4SchemaTyped(createSelectSchema(device_status));
+export const insertDeviceStatusSchema = toZodV4SchemaTyped(createInsertSchema(
+  device_status,
+).required({
+  device_id: true,
+  is_active: true,
+}).omit({
+  id: true,
+  created_at: true,
+}));
+
+export const selectNewDeviceSchema = z.object({
+  device: selectDeviceSchema,
+  status: selectDeviceStatusSchema,
+});
+export const insertNewDeviceSchema = z.object({
+  device: insertDeviceSchema,
+  status: insertDeviceStatusSchema,
 });
