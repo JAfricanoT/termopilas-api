@@ -4,9 +4,9 @@ import { authMiddleware } from "@/middlewares/auth-middleware";
 import * as handlers from "./devices.handlers";
 import * as routes from "./devices.routes";
 
-const userRouter = createRouter();
-userRouter.use(authMiddleware);
-userRouter
+const deviceRouter = createRouter();
+deviceRouter.use(authMiddleware);
+deviceRouter
   .openapi(routes.allDevices, handlers.allDevices)
   .openapi(routes.createDevice, handlers.createDevice)
   .openapi(routes.getDevice, handlers.getDevice)
@@ -14,4 +14,4 @@ userRouter
   .openapi(routes.createDeviceStatus, handlers.createDeviceStatus)
   .openapi(routes.getDeviceStatus, handlers.getDeviceStatus);
 
-export default userRouter;
+export default deviceRouter;
