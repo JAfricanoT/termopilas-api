@@ -18,7 +18,7 @@ export async function authMiddleware(c: Context, next: Next) {
   //  const selectedToken = await postgres.select().from()
 
   // Simple check (reemplazar por JWT en un futuro)
-  if (token !== ((token === selectedToken) || "pruebadebearer")) {
+  if (token !== selectedToken) {
     return c.json({ error: "Unauthorized" }, 401);
   }
 
