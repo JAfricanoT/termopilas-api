@@ -42,7 +42,7 @@ export const insertDeviceStatusSchema = toZodV4SchemaTyped(createInsertSchema(
   device_status,
 ).required({
   device_id: true,
-  is_active: true,
+  created_by: true
 }).omit({
   id: true,
   created_at: true,
