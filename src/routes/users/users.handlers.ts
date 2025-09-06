@@ -36,7 +36,7 @@ export const getUser: AppRouteHandler<GetUserRoute> = async (c) => {
   if (!selectedUser) {
     return c.json(
       {
-        message: HttpStatusCodes.NOT_FOUND,
+        message: "User not found",
       },
       HttpStatusCodes.NOT_FOUND,
     );
@@ -76,7 +76,7 @@ export const patchUser: AppRouteHandler<PatchUserRoute> = async (c) => {
   if (!updatedUser) {
     return c.json(
       {
-        message: HttpStatusCodes.NOT_FOUND,
+        message: "User not found",
       },
       HttpStatusCodes.NOT_FOUND,
     );
@@ -98,7 +98,7 @@ export const getUserStatus: AppRouteHandler<GetUserStatusRoute> = async (c) => {
   if (!selectedUserStatus) {
     return c.json(
       {
-        message: HttpStatusCodes.NOT_FOUND,
+        message: "User Status not found",
       },
       HttpStatusCodes.NOT_FOUND,
     );
@@ -120,7 +120,7 @@ export const getUserInformation: AppRouteHandler<GetUserInformationRoute> = asyn
   if (!selectedUserInformation) {
     return c.json(
       {
-        message: HttpStatusCodes.NOT_FOUND,
+        message: "User Information not found",
       },
       HttpStatusCodes.NOT_FOUND,
     );
@@ -160,7 +160,7 @@ export const patchUserInformation: AppRouteHandler<PatchUserInformationRoute> = 
   if (!updatedUserInformation) {
     return c.json(
       {
-        message: HttpStatusCodes.NOT_FOUND,
+        message: "User Information not found",
       },
       HttpStatusCodes.NOT_FOUND,
     );

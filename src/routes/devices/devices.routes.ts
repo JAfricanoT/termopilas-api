@@ -4,7 +4,6 @@ import { jsonContent, jsonContentRequired } from "stoker/openapi/helpers";
 import { createErrorSchema, IdParamsSchema, SlugParamsSchema } from "stoker/openapi/schemas";
 
 import { insertDeviceStatusSchema, insertNewDeviceSchema, patchDeviceSchema, selectDeviceSchema, selectDeviceStatusSchema, selectNewDeviceSchema } from "@/db/postgres/schemas/devices/schema";
-import { selectUserSchema } from "@/db/postgres/schemas/users/schema";
 import { notFoundSchema } from "@/lib/constants";
 
 const tags = ["Devices"];
@@ -35,7 +34,7 @@ export const createDevice = createRoute({
   },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
-      selectDeviceSchema,
+      selectNewDeviceSchema,
       "The created device",
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
@@ -55,7 +54,7 @@ export const getDevice = createRoute({
   },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
-      selectUserSchema,
+      selectDeviceSchema,
       "The requested device",
     ),
     [HttpStatusCodes.NOT_FOUND]: jsonContent(

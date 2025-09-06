@@ -31,7 +31,7 @@ export const getDevice: AppRouteHandler<GetDeviceRoute> = async (c) => {
   if (!selectedDevice) {
     return c.json(
       {
-        message: HttpStatusCodes.NOT_FOUND,
+        message: "Device not found",
       },
       HttpStatusCodes.NOT_FOUND,
     );
@@ -71,7 +71,7 @@ export const patchDevice: AppRouteHandler<PatchDeviceRoute> = async (c) => {
   if (!updatedUser) {
     return c.json(
       {
-        message: HttpStatusCodes.NOT_FOUND,
+        message: "Device not found",
       },
       HttpStatusCodes.NOT_FOUND,
     );
@@ -95,7 +95,7 @@ export const getDeviceStatus: AppRouteHandler<GetDeviceStatusRoute> = async (c) 
   if (!selectedDeviceStatus) {
     return c.json(
       {
-        message: HttpStatusCodes.NOT_FOUND,
+        message: "Device Status not found",
       },
       HttpStatusCodes.NOT_FOUND,
     );
