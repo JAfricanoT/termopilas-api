@@ -2,7 +2,7 @@ import { createRoute, z } from "@hono/zod-openapi";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import { jsonContent, jsonContentRequired } from "stoker/openapi/helpers";
 
-import { insertUserSchema, patchUserSchema, selectUserSchema } from "@/db/postgres/schemas/users/schema";
+import { insertNewUserSchema, insertUserInformationSchema, insertUserStatusSchema, patchUserInformationSchema, patchUserSchema, selectNewUserSchema, selectUserInformationSchema, selectUserSchema, selectUserStatusSchema } from "@/db/postgres/schemas/users/schema";
 import { notFoundSchema } from "@/lib/constants";
 import { createErrorSchema, IdParamsSchema } from "stoker/openapi/schemas";
 
@@ -29,17 +29,17 @@ export const createUser = createRoute({
   security: [{ bearerAuth: [] }],
   request: {
     body: jsonContentRequired(
-      insertUserSchema,
+      insertNewUserSchema,
       "The user to create",
     ),
   },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
-      selectUserSchema,
+      selectNewUserSchema,
       "The created user",
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
-      createErrorSchema(selectUserSchema),
+      createErrorSchema(selectNewUserSchema),
       "The validation error(s)",
     ),
   },
@@ -103,4 +103,133 @@ export type CreateUserRoute = typeof createUser;
 export type GetUserRoute = typeof getUser;
 export type PatchUserRoute = typeof patchUser;
 
+export const createUserStatus = createRoute({
+  tags,
+  path: "/users/status",
+  method: "post",
+  security: [{ bearerAuth: [] }],
+  request: {
+    body: jsonContentRequired(
+      insertUserStatusSchema,
+      "The status to update to an user",
+    ),
+  },
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(
+      selectUserStatusSchema,
+      "The created status",
+    ),
+    [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
+      createErrorSchema(selectUserStatusSchema),
+      "The validation error(s)",
+    ),
+  },
+});
 
+export const getUserStatus = createRoute({
+  tags,
+  title: "Get User Status",
+  path: "/users/status/{id}",
+  method: "get",
+  security: [{ bearerAuth: [] }],
+  request: {
+    params: IdParamsSchema,
+  },
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(
+      selectUserStatusSchema,
+      "The requested status of an user",
+    ),
+    [HttpStatusCodes.NOT_FOUND]: jsonContent(
+      notFoundSchema,
+      "User not found",
+    ),
+    [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
+      createErrorSchema(IdParamsSchema),
+      "Invalid id error",
+    ),
+  },
+});
+
+export type CreateUserStatusRoute = typeof createUserStatus;
+export type GetUserStatusRoute = typeof getUserStatus;
+
+export const createUserInformation = createRoute({
+  tags,
+  path: "/users/info",
+  method: "post",
+  security: [{ bearerAuth: [] }],
+  request: {
+    body: jsonContentRequired(
+      insertUserInformationSchema,
+      "The user information to assign to an user",
+    ),
+  },
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(
+      selectUserInformationSchema,
+      "The information assigned to an user",
+    ),
+    [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
+      createErrorSchema(selectUserInformationSchema),
+      "The validation error(s)",
+    ),
+  },
+});
+
+export const getUserInformation = createRoute({
+  tags,
+  path: "/users/info/{id}",
+  method: "get",
+  security: [{ bearerAuth: [] }],
+  request: {
+    params: IdParamsSchema,
+  },
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(
+      selectUserInformationSchema,
+      "The requested user information",
+    ),
+    [HttpStatusCodes.NOT_FOUND]: jsonContent(
+      notFoundSchema,
+      "User not found",
+    ),
+    [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
+      createErrorSchema(IdParamsSchema),
+      "Invalid id error",
+    ),
+  },
+});
+
+export const patchUserInformation = createRoute({
+  tags,
+  path: "/users/info/{id}",
+  method: "patch",
+  security: [{ bearerAuth: [] }],
+  request: {
+    params: IdParamsSchema,
+    body: jsonContentRequired(
+      patchUserInformationSchema,
+      "The user information updates",
+    ),
+  },
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(
+      selectUserInformationSchema,
+      "The updated user information",
+    ),
+    [HttpStatusCodes.NOT_FOUND]: jsonContent(
+      notFoundSchema,
+      "User not found",
+    ),
+    [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
+      createErrorSchema(patchUserInformationSchema)
+        .or(createErrorSchema(IdParamsSchema)),
+      "The validation error(s)",
+    ),
+  },
+});
+
+export type CreateUserInformationRoute = typeof createUserInformation;
+export type GetUserInformationRoute = typeof getUserInformation;
+export type PatchUserInformationRoute = typeof patchUserInformation;

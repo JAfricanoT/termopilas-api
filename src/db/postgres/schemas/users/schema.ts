@@ -1,34 +1,37 @@
 import { toZodV4SchemaTyped } from "@/lib/zod-utils";
 import { boolean, integer, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import z from "zod";
 import { user_roles } from "../roles/schema";
 
-// ! USERS
 export const users = pgTable("users", {
   id: serial().primaryKey(),
-  lida_id: text().unique(),
-  role_id: integer().default(1).references(() => user_roles.id),
+  lida_id: text().unique().notNull(),
+  role_id: integer().default(3).notNull().references(() => user_roles.id),
   created_at: timestamp().defaultNow(),
 });
 
 export const user_status = pgTable("user_status", {
   id: serial().primaryKey(),
-  user_id: integer().references(() => users.id),
-  is_active: boolean().default(false),
-  created_by: integer().references(() => users.id),
+  user_id: integer().notNull().references(() => users.id),
+  is_active: boolean().default(false).notNull(),
+  created_by: integer().notNull().references(() => users.id),
   created_at: timestamp().defaultNow(),
 });
 
 export const user_information = pgTable("user_information", {
   id: serial().primaryKey(),
-  user_id: integer().references(() => users.id),
-  username: text().unique(),
-  identity_number: integer().unique(),
+  user_id: integer().notNull().references(() => users.id),
+  username: text().unique().notNull(),
+  identity_number: integer().unique().notNull(),
+  modified_at: timestamp().defaultNow().$onUpdate(() => new Date()).notNull(),
   created_at: timestamp().defaultNow(),
 });
 
+// @ts-expect-error
 export const selectUserSchema = toZodV4SchemaTyped(createSelectSchema(users));
 export const insertUserSchema = toZodV4SchemaTyped(createInsertSchema(
+  // @ts-expect-error
   users,
   {
     lida_id: (field) => field.min(14).max(21),
@@ -43,3 +46,40 @@ export const insertUserSchema = toZodV4SchemaTyped(createInsertSchema(
 
 // @ts-expect-error partial exists on zod v4 type
 export const patchUserSchema = insertUserSchema.partial();
+
+// @ts-expect-error
+export const selectUserStatusSchema = toZodV4SchemaTyped(createSelectSchema(user_status));
+// @ts-expect-error
+export const insertUserStatusSchema = toZodV4SchemaTyped(createInsertSchema(user_status)
+  .required({
+    user_id: true,
+    created_by: true,
+  }).omit({
+    id: true,
+    created_at: true,
+  }));
+
+// @ts-expect-error
+export const selectUserInformationSchema = toZodV4SchemaTyped(createSelectSchema(user_information));
+// @ts-expect-error
+export const insertUserInformationSchema = toZodV4SchemaTyped(createInsertSchema(user_information)
+  .required({
+    user_id: true,
+    username: true,
+    identity_number: true,
+  }).omit({
+    id: true,
+    created_at: true,
+  }));
+
+// @ts-expect-error partial exists on zod v4 type
+export const patchUserInformationSchema = insertUserInformationSchema.partial();
+
+export const selectNewUserSchema = z.object({
+  user: selectUserSchema,
+  user_status: selectUserStatusSchema,
+});
+export const insertNewUserSchema = z.object({
+  user: insertUserSchema,
+  user_status: insertUserStatusSchema,
+});
