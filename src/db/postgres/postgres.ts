@@ -16,7 +16,7 @@ const postgres = drizzle({
 async function logDatabaseTime() {
   try {
     const result = await postgres.execute("SELECT NOW() as current_time");
-    console.log("DB Current Time:", result.rows[0].current_time);
+    console.warn("DB Current Time:", result.rows[0].current_time);
   }
   catch (error) {
     console.error("Error:", error);
