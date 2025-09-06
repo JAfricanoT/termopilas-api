@@ -1,4 +1,5 @@
 import { boolean, integer, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
+
 import { organizations } from "../organizations/schema";
 import { users } from "../users/schema";
 

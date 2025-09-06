@@ -1,4 +1,5 @@
 import { integer, pgTable, serial, timestamp } from "drizzle-orm/pg-core";
+
 import { devices } from "../devices/schema";
 import { keys } from "../keys/schema";
 import { role_actions } from "../roles/schema";
