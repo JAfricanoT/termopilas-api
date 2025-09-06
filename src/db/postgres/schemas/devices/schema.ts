@@ -38,15 +38,14 @@ export const insertDeviceSchema = toZodV4SchemaTyped(createInsertSchema(devices)
 export const patchDeviceSchema = insertDeviceSchema.partial();
 
 export const selectDeviceStatusSchema = toZodV4SchemaTyped(createSelectSchema(device_status));
-export const insertDeviceStatusSchema = toZodV4SchemaTyped(createInsertSchema(
-  device_status,
-).required({
-  device_id: true,
-  created_by: true
-}).omit({
-  id: true,
-  created_at: true,
-}));
+export const insertDeviceStatusSchema = toZodV4SchemaTyped(createInsertSchema(device_status)
+  .required({
+    device_id: true,
+    created_by: true
+  }).omit({
+    id: true,
+    created_at: true,
+  }));
 
 export const selectNewDeviceSchema = z.object({
   device: selectDeviceSchema,
