@@ -12,6 +12,7 @@ export const identifiers = pgTable("identifiers", {
   factory_id: text().notNull().unique(),
   user_id: integer().notNull().references(() => users.id),
   organization_id: integer().notNull().references(() => organizations.id),
+  created_by: integer().notNull().references(() => users.id),
   created_at: timestamp().defaultNow(),
 });
 
