@@ -40,3 +40,6 @@ export const insertUserSchema = toZodV4SchemaTyped(createInsertSchema(
   id: true,
   created_at: true,
 }));
+
+// @ts-expect-error partial exists on zod v4 type
+export const patchUserSchema = insertUserSchema.partial();

@@ -9,5 +9,7 @@ userRouter.use(authMiddleware);
 userRouter
   .openapi(routes.allUsers, handlers.allUsers)
   .openapi(routes.createUser, handlers.createUser)
+  .openapi(routes.getUser, handlers.getUser)
+  .openapi(routes.patchUser, handlers.patchUser)
 
 export default userRouter;
