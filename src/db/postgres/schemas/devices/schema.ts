@@ -50,7 +50,7 @@ export const insertDeviceStatusSchema = toZodV4SchemaTyped(createInsertSchema(
 
 export const selectNewDeviceSchema = z.object({
   device: selectDeviceSchema,
-  status: selectDeviceStatusSchema,
+  status: selectDeviceStatusSchema.optional(),
 });
 export const insertNewDeviceSchema = z.object({
   device: insertDeviceSchema,
