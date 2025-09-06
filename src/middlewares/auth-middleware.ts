@@ -14,7 +14,7 @@ export async function authMiddleware(c: Context, next: Next) {
 
   const token = authHeader.substring(7); // remove "Bearer "
 
-   const selectedToken = "prueba"
+  const selectedToken = "prueba";
   //  const selectedToken = await postgres.select().from()
 
   // Simple check (reemplazar por JWT en un futuro)
