@@ -5,7 +5,7 @@ import type { Context, Next } from "hono";
  * - Valida header Authorization: "Bearer <token>"
  * - Compara contra process.env.API_TOKEN (puedes cambiar a JWT si quieres)
  */
-export const authMiddleware = async (c: Context, next: Next) => {
+export async function authMiddleware(c: Context, next: Next) {
   const authHeader = c.req.header("Authorization");
 
   if (!authHeader?.startsWith("Bearer ")) {
@@ -14,10 +14,13 @@ export const authMiddleware = async (c: Context, next: Next) => {
 
   const token = authHeader.substring(7); // remove "Bearer "
 
+   const selectedToken = "prueba"
+  //  const selectedToken = await postgres.select().from()
+
   // Simple check (reemplazar por JWT en un futuro)
-  if (token !== (process.env.API_TOKEN || "pruebadebearer")) {
+  if (token !== ((token === selectedToken) || "pruebadebearer")) {
     return c.json({ error: "Unauthorized" }, 401);
   }
 
   await next();
-};
+}
