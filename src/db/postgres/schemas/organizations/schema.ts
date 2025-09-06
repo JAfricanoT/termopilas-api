@@ -1,8 +1,9 @@
 import { boolean, integer, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
-
-import { toZodV4SchemaTyped } from "@/lib/zod-utils";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import z from "zod";
+
+import { toZodV4SchemaTyped } from "@/lib/zod-utils";
+
 import { users } from "../users/schema";
 
 export const organizations = pgTable("organizations", {
@@ -39,7 +40,7 @@ export const selectOrganizationStatusSchema = toZodV4SchemaTyped(createSelectSch
 export const insertOrganizationStatusSchema = toZodV4SchemaTyped(createInsertSchema(organization_status)
   .required({
     organization_id: true,
-    created_by: true
+    created_by: true,
   }).omit({
     id: true,
     created_at: true,

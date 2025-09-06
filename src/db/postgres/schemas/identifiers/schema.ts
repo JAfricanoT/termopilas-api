@@ -1,8 +1,9 @@
 import { boolean, integer, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
-
-import { toZodV4SchemaTyped } from "@/lib/zod-utils";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import z from "zod";
+
+import { toZodV4SchemaTyped } from "@/lib/zod-utils";
+
 import { organizations } from "../organizations/schema";
 import { users } from "../users/schema";
 
@@ -41,13 +42,13 @@ export const patchIdentifierSchema = insertIdentifierSchema.partial();
 
 export const selectIdentifierStatusSchema = toZodV4SchemaTyped(createSelectSchema(identifier_status));
 export const insertIdentifierStatusSchema = toZodV4SchemaTyped(createInsertSchema(identifier_status)
-.required({
-  identifier_id: true,
-  created_by: true,
-}).omit({
-  id: true,
-  created_at: true,
-}));
+  .required({
+    identifier_id: true,
+    created_by: true,
+  }).omit({
+    id: true,
+    created_at: true,
+  }));
 
 export const selectNewIdentifierSchema = z.object({
   identifier: selectIdentifiersSchema,

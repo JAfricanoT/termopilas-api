@@ -4,10 +4,10 @@ import * as HttpStatusCodes from "stoker/http-status-codes";
 import type { AppRouteHandler } from "@/lib/types";
 
 import postgres from "@/db/postgres/postgres";
+import { identifier_status, identifiers } from "@/db/postgres/schemas/identifiers/schema";
 import { ZOD_ERROR_CODES, ZOD_ERROR_MESSAGES } from "@/lib/constants";
 
-import { identifier_status, identifiers } from "@/db/postgres/schemas/identifiers/schema";
-import { AllIdentifiersRoute, CreateIdentifierRoute, CreateIdentifierStatusRoute, GetIdentifierRoute, GetIdentifierStatusRoute, PatchIdentifierRoute } from "./identifiers.routes";
+import type { AllIdentifiersRoute, CreateIdentifierRoute, CreateIdentifierStatusRoute, GetIdentifierRoute, GetIdentifierStatusRoute, PatchIdentifierRoute } from "./identifiers.routes";
 
 export const allIdentifiers: AppRouteHandler<AllIdentifiersRoute> = async (c) => {
   const allIdentifiers = await postgres.select().from(identifiers);

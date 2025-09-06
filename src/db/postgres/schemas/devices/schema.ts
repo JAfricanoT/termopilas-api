@@ -41,7 +41,7 @@ export const selectDeviceStatusSchema = toZodV4SchemaTyped(createSelectSchema(de
 export const insertDeviceStatusSchema = toZodV4SchemaTyped(createInsertSchema(device_status)
   .required({
     device_id: true,
-    created_by: true
+    created_by: true,
   }).omit({
     id: true,
     created_at: true,
