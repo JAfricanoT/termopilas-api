@@ -1,11 +1,10 @@
 import { createRoute, z } from "@hono/zod-openapi";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import { jsonContent, jsonContentRequired } from "stoker/openapi/helpers";
+import { createErrorSchema, IdParamsSchema } from "stoker/openapi/schemas";
 
 import { insertNewUserSchema, insertUserInformationSchema, insertUserStatusSchema, patchUserInformationSchema, patchUserSchema, selectNewUserSchema, selectUserInformationSchema, selectUserSchema, selectUserStatusSchema } from "@/db/postgres/schemas/users/schema";
 import { notFoundSchema } from "@/lib/constants";
-import { createErrorSchema, IdParamsSchema } from "stoker/openapi/schemas";
-
 
 const tags = ["Users"];
 
@@ -111,7 +110,7 @@ export const createUserStatus = createRoute({
   request: {
     body: jsonContentRequired(
       insertUserStatusSchema,
-      "The status to update to an user",
+      "The status to update an user",
     ),
   },
   responses: {
@@ -128,7 +127,6 @@ export const createUserStatus = createRoute({
 
 export const getUserStatus = createRoute({
   tags,
-  title: "Get User Status",
   path: "/users/status/{id}",
   method: "get",
   security: [{ bearerAuth: [] }],
@@ -142,7 +140,7 @@ export const getUserStatus = createRoute({
     ),
     [HttpStatusCodes.NOT_FOUND]: jsonContent(
       notFoundSchema,
-      "User not found",
+      "User Status not found",
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(IdParamsSchema),
@@ -162,7 +160,7 @@ export const createUserInformation = createRoute({
   request: {
     body: jsonContentRequired(
       insertUserInformationSchema,
-      "The user information to assign to an user",
+      "The user information to assign an user",
     ),
   },
   responses: {
@@ -192,7 +190,7 @@ export const getUserInformation = createRoute({
     ),
     [HttpStatusCodes.NOT_FOUND]: jsonContent(
       notFoundSchema,
-      "User not found",
+      "User Information not found",
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(IdParamsSchema),

@@ -1,7 +1,9 @@
-import { toZodV4SchemaTyped } from "@/lib/zod-utils";
 import { boolean, integer, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import z from "zod";
+
+import { toZodV4SchemaTyped } from "@/lib/zod-utils";
+
 import { user_roles } from "../roles/schema";
 
 export const users = pgTable("users", {
@@ -28,13 +30,11 @@ export const user_information = pgTable("user_information", {
   created_at: timestamp().defaultNow(),
 });
 
-// @ts-expect-error
 export const selectUserSchema = toZodV4SchemaTyped(createSelectSchema(users));
 export const insertUserSchema = toZodV4SchemaTyped(createInsertSchema(
-  // @ts-expect-error
   users,
   {
-    lida_id: (field) => field.min(14).max(21),
+    lida_id: field => field.min(14).max(21),
   },
 ).required({
   lida_id: true,
@@ -47,9 +47,8 @@ export const insertUserSchema = toZodV4SchemaTyped(createInsertSchema(
 // @ts-expect-error partial exists on zod v4 type
 export const patchUserSchema = insertUserSchema.partial();
 
-// @ts-expect-error
 export const selectUserStatusSchema = toZodV4SchemaTyped(createSelectSchema(user_status));
-// @ts-expect-error
+
 export const insertUserStatusSchema = toZodV4SchemaTyped(createInsertSchema(user_status)
   .required({
     user_id: true,
@@ -59,9 +58,7 @@ export const insertUserStatusSchema = toZodV4SchemaTyped(createInsertSchema(user
     created_at: true,
   }));
 
-// @ts-expect-error
 export const selectUserInformationSchema = toZodV4SchemaTyped(createSelectSchema(user_information));
-// @ts-expect-error
 export const insertUserInformationSchema = toZodV4SchemaTyped(createInsertSchema(user_information)
   .required({
     user_id: true,
@@ -77,9 +74,9 @@ export const patchUserInformationSchema = insertUserInformationSchema.partial();
 
 export const selectNewUserSchema = z.object({
   user: selectUserSchema,
-  user_status: selectUserStatusSchema,
+  status: selectUserStatusSchema,
 });
 export const insertNewUserSchema = z.object({
   user: insertUserSchema,
-  user_status: insertUserStatusSchema,
+  status: insertUserStatusSchema,
 });
