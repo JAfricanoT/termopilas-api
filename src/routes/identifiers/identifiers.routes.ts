@@ -151,7 +151,3 @@ export const getIdentifierStatus = createRoute({
 
 export type CreateIdentifierStatusRoute = typeof createIdentifierStatus;
 export type GetIdentifierStatusRoute = typeof getIdentifierStatus;
-
-export function allTemporaryIdentifiers(allTemporaryIdentifiers: any, allTemporaryIdentifiers1: any) {
-  throw new Error("Function not implemented.");
-}
