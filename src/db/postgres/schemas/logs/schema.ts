@@ -1,5 +1,7 @@
 import { integer, pgTable, serial, timestamp } from "drizzle-orm/pg-core";
 
+import { toZodV4SchemaTyped } from "@/lib/zod-utils";
+import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { actions } from "../actions/schema";
 import { devices } from "../devices/schema";
 import { identifiers } from "../identifiers/schema";
@@ -10,7 +12,7 @@ export const identifier_logs = pgTable("identifier_logs", {
   identifier_id: integer().notNull().references(() => identifiers.id),
   device_id: integer().notNull().references(() => devices.id),
   action_id: integer().notNull().references(() => actions.id),
-  timestamp: timestamp().defaultNow(),
+  created_at: timestamp().defaultNow(),
 });
 
 export const temporary_identifier_logs = pgTable("temporary_identifier_logs", {
@@ -18,5 +20,27 @@ export const temporary_identifier_logs = pgTable("temporary_identifier_logs", {
   temporary_identifier_id: integer().notNull().references(() => temporary_identifiers.id),
   device_id: integer().notNull().references(() => devices.id),
   action_id: integer().notNull().references(() => actions.id),
-  timestamp: timestamp().defaultNow(),
+  created_at: timestamp().defaultNow(),
 });
+
+export const selectIdentifierLogsSchema = toZodV4SchemaTyped(createSelectSchema(identifier_logs));
+export const insertIdentifierLogSchema = toZodV4SchemaTyped(createInsertSchema(identifier_logs)
+  .required({
+    identifier_id: true,
+    device_id: true,
+    action_id: true,
+  }).omit({
+    id: true,
+    created_at: true,
+  }));
+
+  export const selectTemporaryIdentifierLogsSchema = toZodV4SchemaTyped(createSelectSchema(temporary_identifier_logs));
+export const insertTemporaryIdentifierLogSchema = toZodV4SchemaTyped(createInsertSchema(temporary_identifier_logs)
+  .required({
+    temporary_identifier_id: true,
+    device_id: true,
+    action_id: true,
+  }).omit({
+    id: true,
+    created_at: true,
+  }));
