@@ -60,8 +60,6 @@ export const selectActionStatusSchema = toZodV4SchemaTyped(createSelectSchema(ac
 export const insertActionStatusSchema = toZodV4SchemaTyped(createInsertSchema(action_status)
   .required({
     action_id: true,
-    device_role_id: true,
-    user_role_id: true,
     created_by: true,
   }).omit({
     id: true,
@@ -77,3 +75,4 @@ export const insertNewActionSchema = z.object({
   action: insertActionSchema,
   status: insertActionStatusSchema,
 });
+
