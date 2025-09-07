@@ -9,9 +9,9 @@ identifierRouter.use(authMiddleware);
 identifierRouter
   .openapi(routes.allIdentifiers, handlers.allIdentifiers)
   .openapi(routes.createIdentifier, handlers.createIdentifier)
-  .openapi(routes.getIdentifier, handlers.getIdentifier)
-  .openapi(routes.patchIdentifier, handlers.patchIdentifier)
   .openapi(routes.createIdentifierStatus, handlers.createIdentifierStatus)
-  .openapi(routes.getIdentifierStatus, handlers.getIdentifierStatus);
+  .openapi(routes.getIdentifierStatus, handlers.getIdentifierStatus)
+  .openapi(routes.getIdentifier, handlers.getIdentifier)
+  .openapi(routes.patchIdentifier, handlers.patchIdentifier);
 
 export default identifierRouter;

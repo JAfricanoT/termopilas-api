@@ -10,23 +10,34 @@ import { ZOD_ERROR_CODES, ZOD_ERROR_MESSAGES } from "@/lib/constants";
 import type { AllIdentifiersRoute, CreateIdentifierRoute, CreateIdentifierStatusRoute, GetIdentifierRoute, GetIdentifierStatusRoute, PatchIdentifierRoute } from "./identifiers.routes";
 
 export const allIdentifiers: AppRouteHandler<AllIdentifiersRoute> = async (c) => {
-  const allIdentifiers = await postgres.select().from(identifiers);
+  const allIdentifiers = await postgres
+    .select()
+    .from(identifiers);
   return c.json(allIdentifiers);
 };
 
 export const createIdentifier: AppRouteHandler<CreateIdentifierRoute> = async (c) => {
   const { identifier, status } = c.req.valid("json");
-  const [insertedIdentifier] = await postgres.insert(identifiers).values(identifier).returning();
+  const [insertedIdentifier] = await postgres
+    .insert(identifiers)
+    .values(identifier)
+    .returning();
   // FIX: El device_id deberia ser opcional cuando se crea el device
   status.identifier_id = insertedIdentifier.id;
-  const [insertedStatus] = await postgres.insert(identifier_status).values(status).returning();
+  const [insertedStatus] = await postgres
+    .insert(identifier_status)
+    .values(status)
+    .returning();
   const inserted = { identifier: insertedIdentifier, status: insertedStatus };
   return c.json(inserted, HttpStatusCodes.OK);
 };
 
 export const getIdentifier: AppRouteHandler<GetIdentifierRoute> = async (c) => {
   const { slug } = c.req.valid("param");
-  const [selectedIdentifier] = await postgres.select().from(identifiers).where(eq(identifiers.identifier_id, slug));
+  const [selectedIdentifier] = await postgres
+    .select()
+    .from(identifiers)
+    .where(eq(identifiers.identifier_id, slug));
 
   if (!selectedIdentifier) {
     return c.json(
@@ -63,7 +74,11 @@ export const patchIdentifier: AppRouteHandler<PatchIdentifierRoute> = async (c) 
     );
   }
 
-  const [updatedIdentifier] = await postgres.update(identifiers).set(updates).where(eq(identifiers.id, id)).returning();
+  const [updatedIdentifier] = await postgres
+    .update(identifiers)
+    .set(updates)
+    .where(eq(identifiers.id, id))
+    .returning();
 
   if (!updatedIdentifier) {
     return c.json(
@@ -79,15 +94,26 @@ export const patchIdentifier: AppRouteHandler<PatchIdentifierRoute> = async (c) 
 
 export const createIdentifierStatus: AppRouteHandler<CreateIdentifierStatusRoute> = async (c) => {
   const newIdentifierStatus = c.req.valid("json");
-  const [inserted] = await postgres.insert(identifier_status).values(newIdentifierStatus).returning();
+  const [inserted] = await postgres
+    .insert(identifier_status)
+    .values(newIdentifierStatus)
+    .returning();
   return c.json(inserted, HttpStatusCodes.OK);
 };
 
 export const getIdentifierStatus: AppRouteHandler<GetIdentifierStatusRoute> = async (c) => {
   const { slug } = c.req.valid("param");
-  const [selectedIdentifier] = await postgres.select().from(identifiers).where(eq(identifiers.identifier_id, slug));
+  const [selectedIdentifier] = await postgres
+    .select()
+    .from(identifiers)
+    .where(eq(identifiers.identifier_id, slug));
 
-  const [selectedIdentifierStatus] = await postgres.select().from(identifier_status).where(eq(identifier_status.identifier_id, selectedIdentifier.id)).orderBy(desc(identifier_status.id)).limit(1);
+  const [selectedIdentifierStatus] = await postgres
+    .select()
+    .from(identifier_status)
+    .where(eq(identifier_status.identifier_id, selectedIdentifier.id))
+    .orderBy(desc(identifier_status.id))
+    .limit(1);
 
   if (!selectedIdentifierStatus) {
     return c.json(

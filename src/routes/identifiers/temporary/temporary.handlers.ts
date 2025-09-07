@@ -7,7 +7,7 @@ import postgres from "@/db/postgres/postgres";
 import { temporary_identifier_bearer_status, temporary_identifier_bearers, temporary_identifiers } from "@/db/postgres/schemas/temporary-identifiers/schema";
 import { ZOD_ERROR_CODES, ZOD_ERROR_MESSAGES } from "@/lib/constants";
 
-import type { AllTemporaryIdentifierBearersRoute, AllTemporaryIdentifiersRoute, CreateTemporaryIdentifierBearerRoute, CreateTemporaryIdentifierBearerStatusRoute, CreateTemporaryIdentifierRoute, GetTemporaryIdentifierBearerRoute, GetTemporaryIdentifierBearerStatusRoute, GetTemporaryIdentifierRoute, PatchTemporaryIdentifierBearerRoute, PatchTemporaryIdentifierRoute } from "./temporary-identifiers.routes";
+import type { AllTemporaryIdentifierBearersRoute, AllTemporaryIdentifiersRoute, CreateTemporaryIdentifierBearerRoute, CreateTemporaryIdentifierBearerStatusRoute, CreateTemporaryIdentifierRoute, GetTemporaryIdentifierBearerRoute, GetTemporaryIdentifierBearerStatusRoute, GetTemporaryIdentifierRoute, PatchTemporaryIdentifierBearerRoute, PatchTemporaryIdentifierRoute } from "./temporary.routes";
 
 export const allTemporaryIdentifiers: AppRouteHandler<AllTemporaryIdentifiersRoute> = async (c) => {
   const allTemporaryIdentifiers = await postgres
@@ -67,7 +67,11 @@ export const patchTemporaryIdentifier: AppRouteHandler<PatchTemporaryIdentifierR
     );
   }
 
-  const [updatedTemporaryIdentifier] = await postgres.update(temporary_identifiers).set(updates).where(eq(temporary_identifiers.id, id)).returning();
+  const [updatedTemporaryIdentifier] = await postgres
+    .update(temporary_identifiers)
+    .set(updates)
+    .where(eq(temporary_identifiers.id, id))
+    .returning();
 
   if (!updatedTemporaryIdentifier) {
     return c.json(

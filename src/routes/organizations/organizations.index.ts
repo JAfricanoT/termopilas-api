@@ -9,9 +9,9 @@ organizationRouter.use(authMiddleware);
 organizationRouter
   .openapi(routes.allOrganizations, handlers.allOrganizations)
   .openapi(routes.createOrganization, handlers.createOrganization)
-  .openapi(routes.getOrganization, handlers.getOrganization)
-  .openapi(routes.patchOrganization, handlers.patchOrganization)
   .openapi(routes.createOrganizationStatus, handlers.createOrganizationStatus)
-  .openapi(routes.getOrganizationStatus, handlers.getOrganizationStatus);
+  .openapi(routes.getOrganizationStatus, handlers.getOrganizationStatus)
+  .openapi(routes.getOrganization, handlers.getOrganization)
+  .openapi(routes.patchOrganization, handlers.patchOrganization);
 
 export default organizationRouter;

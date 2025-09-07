@@ -10,23 +10,34 @@ import { ZOD_ERROR_CODES, ZOD_ERROR_MESSAGES } from "@/lib/constants";
 import type { AllOrganizationsRoute, CreateOrganizationRoute, CreateOrganizationStatusRoute, GetOrganizationRoute, GetOrganizationStatusRoute, PatchOrganizationRoute } from "./organizations.routes";
 
 export const allOrganizations: AppRouteHandler<AllOrganizationsRoute> = async (c) => {
-  const allOrganizations = await postgres.select().from(organizations);
+  const allOrganizations = await postgres
+    .select()
+    .from(organizations);
   return c.json(allOrganizations);
 };
 
 export const createOrganization: AppRouteHandler<CreateOrganizationRoute> = async (c) => {
   const { organization, status } = c.req.valid("json");
-  const [insertedOrganization] = await postgres.insert(organizations).values(organization).returning();
+  const [insertedOrganization] = await postgres
+    .insert(organizations)
+    .values(organization)
+    .returning();
   // FIX: El organization_id deberia ser opcional cuando se crea el organization
   status.organization_id = insertedOrganization.id;
-  const [insertedStatus] = await postgres.insert(organization_status).values(status).returning();
+  const [insertedStatus] = await postgres
+    .insert(organization_status)
+    .values(status)
+    .returning();
   const inserted = { organization: insertedOrganization, status: insertedStatus };
   return c.json(inserted, HttpStatusCodes.OK);
 };
 
 export const getOrganization: AppRouteHandler<GetOrganizationRoute> = async (c) => {
   const { slug } = c.req.valid("param");
-  const [selectedOrganization] = await postgres.select().from(organizations).where(eq(organizations.organization_id, slug));
+  const [selectedOrganization] = await postgres
+    .select()
+    .from(organizations)
+    .where(eq(organizations.organization_id, slug));
 
   if (!selectedOrganization) {
     return c.json(
@@ -63,7 +74,8 @@ export const patchOrganization: AppRouteHandler<PatchOrganizationRoute> = async 
     );
   }
 
-  const [updatedUser] = await postgres.update(organizations)
+  const [updatedUser] = await postgres
+    .update(organizations)
     .set(updates)
     .where(eq(organizations.id, id))
     .returning();
@@ -82,15 +94,26 @@ export const patchOrganization: AppRouteHandler<PatchOrganizationRoute> = async 
 
 export const createOrganizationStatus: AppRouteHandler<CreateOrganizationStatusRoute> = async (c) => {
   const newOrganizationStatus = c.req.valid("json");
-  const [inserted] = await postgres.insert(organization_status).values(newOrganizationStatus).returning();
+  const [inserted] = await postgres
+    .insert(organization_status)
+    .values(newOrganizationStatus)
+    .returning();
   return c.json(inserted, HttpStatusCodes.OK);
 };
 
 export const getOrganizationStatus: AppRouteHandler<GetOrganizationStatusRoute> = async (c) => {
   const { slug } = c.req.valid("param");
-  const [selectedOrganization] = await postgres.select().from(organizations).where(eq(organizations.organization_id, slug));
+  const [selectedOrganization] = await postgres
+    .select()
+    .from(organizations)
+    .where(eq(organizations.organization_id, slug));
 
-  const [selectedOrganizationStatus] = await postgres.select().from(organization_status).where(eq(organization_status.organization_id, selectedOrganization.id)).orderBy(desc(organization_status.id)).limit(1);
+  const [selectedOrganizationStatus] = await postgres
+    .select()
+    .from(organization_status)
+    .where(eq(organization_status.organization_id, selectedOrganization.id))
+    .orderBy(desc(organization_status.id))
+    .limit(1);
 
   if (!selectedOrganizationStatus) {
     return c.json(

@@ -10,19 +10,30 @@ import { ZOD_ERROR_CODES, ZOD_ERROR_MESSAGES } from "@/lib/constants";
 import type { AllUsersRoute, CreateUserInformationRoute, CreateUserRoute, CreateUserStatusRoute, GetUserInformationRoute, GetUserRoute, GetUserStatusRoute, PatchUserInformationRoute, PatchUserRoute } from "./users.routes";
 
 export const allUsers: AppRouteHandler<AllUsersRoute> = async (c) => {
-  const allUsers = await postgres.select().from(users);
+  const allUsers = await postgres
+    .select()
+    .from(users);
   return c.json(allUsers);
 };
 
 export const createUser: AppRouteHandler<CreateUserRoute> = async (c) => {
   const { user, status, information } = c.req.valid("json");
-  const [insertedUser] = await postgres.insert(users).values(user).returning();
+  const [insertedUser] = await postgres
+    .insert(users)
+    .values(user)
+    .returning();
   status.user_id = insertedUser.id;
-  const [insertedStatus] = await postgres.insert(user_status).values(status).returning();
+  const [insertedStatus] = await postgres
+    .insert(user_status)
+    .values(status)
+    .returning();
   const inserted = { user: insertedUser, status: insertedStatus };
   if (information) {
     information.user_id = insertedUser.id;
-    const [insertedInformation] = await postgres.insert(user_information).values(information).returning();
+    const [insertedInformation] = await postgres
+      .insert(user_information)
+      .values(information)
+      .returning();
     const inserted = { user: insertedUser, status: insertedStatus, information: insertedInformation };
     return c.json(inserted, HttpStatusCodes.OK);
   }
@@ -31,7 +42,10 @@ export const createUser: AppRouteHandler<CreateUserRoute> = async (c) => {
 
 export const getUser: AppRouteHandler<GetUserRoute> = async (c) => {
   const { id } = c.req.valid("param");
-  const [selectedUser] = await postgres.select().from(users).where(eq(users.id, id));
+  const [selectedUser] = await postgres
+    .select()
+    .from(users)
+    .where(eq(users.id, id));
 
   if (!selectedUser) {
     return c.json(
@@ -68,7 +82,8 @@ export const patchUser: AppRouteHandler<PatchUserRoute> = async (c) => {
     );
   }
 
-  const [updatedUser] = await postgres.update(users)
+  const [updatedUser] = await postgres
+    .update(users)
     .set(updates)
     .where(eq(users.id, id))
     .returning();
@@ -87,13 +102,21 @@ export const patchUser: AppRouteHandler<PatchUserRoute> = async (c) => {
 
 export const createUserStatus: AppRouteHandler<CreateUserStatusRoute> = async (c) => {
   const newUserStatus = c.req.valid("json");
-  const [inserted] = await postgres.insert(user_status).values(newUserStatus).returning();
+  const [inserted] = await postgres
+    .insert(user_status)
+    .values(newUserStatus)
+    .returning();
   return c.json(inserted, HttpStatusCodes.OK);
 };
 
 export const getUserStatus: AppRouteHandler<GetUserStatusRoute> = async (c) => {
   const { id } = c.req.valid("param");
-  const [selectedUserStatus] = await postgres.select().from(user_status).where(eq(user_status.user_id, id)).orderBy(desc(user_status.id)).limit(1);
+  const [selectedUserStatus] = await postgres
+    .select()
+    .from(user_status)
+    .where(eq(user_status.user_id, id))
+    .orderBy(desc(user_status.id))
+    .limit(1);
 
   if (!selectedUserStatus) {
     return c.json(
@@ -109,13 +132,19 @@ export const getUserStatus: AppRouteHandler<GetUserStatusRoute> = async (c) => {
 
 export const createUserInformation: AppRouteHandler<CreateUserInformationRoute> = async (c) => {
   const newUserInformation = c.req.valid("json");
-  const [insertedInformation] = await postgres.insert(user_information).values(newUserInformation).returning();
+  const [insertedInformation] = await postgres
+    .insert(user_information)
+    .values(newUserInformation)
+    .returning();
   return c.json(insertedInformation, HttpStatusCodes.OK);
 };
 
 export const getUserInformation: AppRouteHandler<GetUserInformationRoute> = async (c) => {
   const { id } = c.req.valid("param");
-  const [selectedUserInformation] = await postgres.select().from(user_information).where(eq(user_information.id, id));
+  const [selectedUserInformation] = await postgres
+    .select()
+    .from(user_information)
+    .where(eq(user_information.id, id));
 
   if (!selectedUserInformation) {
     return c.json(
@@ -152,7 +181,8 @@ export const patchUserInformation: AppRouteHandler<PatchUserInformationRoute> = 
     );
   }
 
-  const [updatedUserInformation] = await postgres.update(user_information)
+  const [updatedUserInformation] = await postgres
+    .update(user_information)
     .set(updates)
     .where(eq(user_information.user_id, id))
     .returning();
