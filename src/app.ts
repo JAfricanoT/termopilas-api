@@ -1,5 +1,8 @@
 import configureOpenAPI from "@/lib/configure-open-api";
 import createApp from "@/lib/create-app";
+import actions from "@/routes/actions/actions.index";
+import actionsExecute from "@/routes/actions/execute/execute.index";
+import actionsStatus from "@/routes/actions/status/status.index";
 import devices from "@/routes/devices/devices.index";
 import devicesStatus from "@/routes/devices/status/status.index";
 import identifiers from "@/routes/identifiers/identifiers.index";
@@ -24,6 +27,9 @@ configureOpenAPI(app);
 
 const routes = [
   index,
+  actionsExecute,
+  actionsStatus,
+  actions,
   usersInfo,
   usersStatus,
   users,
