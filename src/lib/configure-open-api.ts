@@ -17,7 +17,8 @@ export default function configureOpenAPI(app: AppOpenAPI) {
     "/reference",
     Scalar({
       url: "/doc",
-      theme: "kepler",
+      pageTitle: 'LIDA API',
+      theme: "none",
       layout: "modern",
       defaultHttpClient: {
         targetKey: "js",

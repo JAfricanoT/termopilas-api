@@ -3,50 +3,50 @@ import * as HttpStatusCodes from "stoker/http-status-codes";
 import { jsonContent, jsonContentRequired } from "stoker/openapi/helpers";
 import { createErrorSchema, IdParamsSchema, SlugParamsSchema } from "stoker/openapi/schemas";
 
-import { insertNewIdentifierSchema, patchIdentifierSchema, selectIdentifiersSchema, selectNewIdentifierSchema } from "@/db/postgres/schemas/identifiers/schema";
+import { insertNewTemporaryIdentifierBearerSchema, patchTemporaryIdentifierBearerSchema, patchTemporaryIdentifierSchema, selectNewTemporaryIdentifierBearersSchema, selectTemporaryIdentifierBearersSchema } from "@/db/postgres/schemas/identifiers/temporary/schema";
 import { notFoundSchema } from "@/lib/constants";
 
-const tags = ["Identifiers"];
+const tags = ["Temporary Identifiers"];
 
-export const allIdentifiers = createRoute({
+export const allTemporaryIdentifierBearers = createRoute({
   tags,
-  path: "/identifiers",
+  path: "/identifiers/temporary/bearers",
   method: "get",
   security: [{ bearerAuth: [] }],
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
-      z.array(selectIdentifiersSchema),
+      z.array(selectTemporaryIdentifierBearersSchema),
       "The list of identifiers",
     ),
   },
 });
 
-export const createIdentifier = createRoute({
+export const createTemporaryIdentifierBearer = createRoute({
   tags,
-  path: "/identifiers",
+  path: "/identifiers/temporary/bearers",
   method: "post",
   security: [{ bearerAuth: [] }],
   request: {
     body: jsonContentRequired(
-      insertNewIdentifierSchema,
+      insertNewTemporaryIdentifierBearerSchema,
       "The identifier to create",
     ),
   },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
-      selectNewIdentifierSchema,
+      selectNewTemporaryIdentifierBearersSchema,
       "The created identifier",
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
-      createErrorSchema(selectNewIdentifierSchema),
+      createErrorSchema(selectNewTemporaryIdentifierBearersSchema),
       "The validation error(s)",
     ),
   },
 });
 
-export const getIdentifier = createRoute({
+export const getTemporaryIdentifierBearer = createRoute({
   tags,
-  path: "/identifiers/{slug}",
+  path: "/identifiers/temporary/bearers/{slug}",
   method: "get",
   security: [{ bearerAuth: [] }],
   request: {
@@ -54,7 +54,7 @@ export const getIdentifier = createRoute({
   },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
-      selectIdentifiersSchema,
+      selectTemporaryIdentifierBearersSchema,
       "The requested identifier",
     ),
     [HttpStatusCodes.NOT_FOUND]: jsonContent(
@@ -68,21 +68,21 @@ export const getIdentifier = createRoute({
   },
 });
 
-export const patchIdentifier = createRoute({
+export const patchTemporaryIdentifierBearer = createRoute({
   tags,
-  path: "/identifiers/{id}",
+  path: "/identifiers/temporary/bearers/{id}",
   method: "patch",
   security: [{ bearerAuth: [] }],
   request: {
     params: IdParamsSchema,
     body: jsonContentRequired(
-      patchIdentifierSchema,
+      patchTemporaryIdentifierBearerSchema,
       "The identifier updates",
     ),
   },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
-      selectIdentifiersSchema,
+      selectTemporaryIdentifierBearersSchema,
       "The updated identifier",
     ),
     [HttpStatusCodes.NOT_FOUND]: jsonContent(
@@ -90,14 +90,14 @@ export const patchIdentifier = createRoute({
       "Identifier not found",
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
-      createErrorSchema(patchIdentifierSchema)
+      createErrorSchema(patchTemporaryIdentifierSchema)
         .or(createErrorSchema(IdParamsSchema)),
       "The validation error(s)",
     ),
   },
 });
 
-export type AllIdentifiersRoute = typeof allIdentifiers;
-export type CreateIdentifierRoute = typeof createIdentifier;
-export type GetIdentifierRoute = typeof getIdentifier;
-export type PatchIdentifierRoute = typeof patchIdentifier;
+export type AllTemporaryIdentifierBearersRoute = typeof allTemporaryIdentifierBearers;
+export type CreateTemporaryIdentifierBearerRoute = typeof createTemporaryIdentifierBearer;
+export type GetTemporaryIdentifierBearerRoute = typeof getTemporaryIdentifierBearer;
+export type PatchTemporaryIdentifierBearerRoute = typeof patchTemporaryIdentifierBearer;

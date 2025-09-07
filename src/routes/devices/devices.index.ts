@@ -9,8 +9,6 @@ deviceRouter.use(authMiddleware);
 deviceRouter
   .openapi(routes.allDevices, handlers.allDevices)
   .openapi(routes.createDevice, handlers.createDevice)
-  .openapi(routes.createDeviceStatus, handlers.createDeviceStatus)
-  .openapi(routes.getDeviceStatus, handlers.getDeviceStatus)
   .openapi(routes.getDevice, handlers.getDevice)
   .openapi(routes.patchDevice, handlers.patchDevice);
 
