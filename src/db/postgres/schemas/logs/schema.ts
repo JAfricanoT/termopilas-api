@@ -3,7 +3,7 @@ import { integer, pgTable, serial, timestamp } from "drizzle-orm/pg-core";
 import { actions } from "../actions/schema";
 import { devices } from "../devices/schema";
 import { identifiers } from "../identifiers/schema";
-import { temporary_identifiers } from "../temporary-identifiers/schema";
+import { temporary_identifiers } from "../identifiers/temporary/schema";
 
 export const identifier_logs = pgTable("identifier_logs", {
   id: serial().primaryKey().notNull(),

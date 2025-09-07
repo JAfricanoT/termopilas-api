@@ -4,7 +4,7 @@ import * as HttpStatusCodes from "stoker/http-status-codes";
 import type { AppRouteHandler } from "@/lib/types";
 
 import postgres from "@/db/postgres/postgres";
-import { temporary_identifier_bearer_status, temporary_identifier_bearers, temporary_identifiers } from "@/db/postgres/schemas/temporary-identifiers/schema";
+import { temporary_identifier_bearer_status, temporary_identifier_bearers, temporary_identifiers } from "@/db/postgres/schemas/identifiers/temporary/schema";
 import { ZOD_ERROR_CODES, ZOD_ERROR_MESSAGES } from "@/lib/constants";
 
 import type { AllTemporaryIdentifierBearersRoute, AllTemporaryIdentifiersRoute, CreateTemporaryIdentifierBearerRoute, CreateTemporaryIdentifierBearerStatusRoute, CreateTemporaryIdentifierRoute, GetTemporaryIdentifierBearerRoute, GetTemporaryIdentifierBearerStatusRoute, GetTemporaryIdentifierRoute, PatchTemporaryIdentifierBearerRoute, PatchTemporaryIdentifierRoute } from "./temporary.routes";

@@ -4,8 +4,8 @@ import z from "zod";
 
 import { toZodV4SchemaTyped } from "@/lib/zod-utils";
 
-import { organizations } from "../organizations/schema";
-import { users } from "../users/schema";
+import { organizations } from "../../organizations/schema";
+import { users } from "../../users/schema";
 
 export const temporary_identifiers = pgTable("temporary_identifiers", {
   id: serial().primaryKey().notNull(),

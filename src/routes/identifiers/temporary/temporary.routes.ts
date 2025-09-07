@@ -3,7 +3,7 @@ import * as HttpStatusCodes from "stoker/http-status-codes";
 import { jsonContent, jsonContentRequired } from "stoker/openapi/helpers";
 import { createErrorSchema, IdParamsSchema, SlugParamsSchema } from "stoker/openapi/schemas";
 
-import { insertNewTemporaryIdentifierBearerSchema, insertTemporaryIdentifierBearerStatusSchema, insertTemporaryIdentifierSchema, patchTemporaryIdentifierBearerSchema, patchTemporaryIdentifierSchema, selectNewTemporaryIdentifierBearersSchema, selectTemporaryIdentifierBearersSchema, selectTemporaryIdentifierBearerStatusSchema, selectTemporaryIdentifiersSchema } from "@/db/postgres/schemas/temporary-identifiers/schema";
+import { insertNewTemporaryIdentifierBearerSchema, insertTemporaryIdentifierBearerStatusSchema, insertTemporaryIdentifierSchema, patchTemporaryIdentifierBearerSchema, patchTemporaryIdentifierSchema, selectNewTemporaryIdentifierBearersSchema, selectTemporaryIdentifierBearersSchema, selectTemporaryIdentifierBearerStatusSchema, selectTemporaryIdentifiersSchema } from "@/db/postgres/schemas/identifiers/temporary/schema";
 import { notFoundSchema } from "@/lib/constants";
 
 const tags = ["Temporary Identifiers"];
