@@ -1,65 +1,65 @@
 import { createRoute, z } from "@hono/zod-openapi";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import { jsonContent, jsonContentRequired } from "stoker/openapi/helpers";
-import { createErrorSchema, IdParamsSchema, SlugParamsSchema } from "stoker/openapi/schemas";
+import { createErrorSchema, IdParamsSchema } from "stoker/openapi/schemas";
 
-import { insertDeviceStatusSchema, insertNewDeviceSchema, patchDeviceSchema, selectDevicesSchema, selectDeviceStatusSchema, selectNewDeviceSchema } from "@/db/postgres/schemas/devices/schema";
+import { insertDeviceRoleStatusSchema, insertNewDeviceRoleSchema, patchDeviceRoleSchema, selectDeviceRolesSchema, selectDeviceRoleStatusSchema, selectNewDeviceRoleSchema } from "@/db/postgres/schemas/roles/device/schema";
 import { notFoundSchema } from "@/lib/constants";
 
-const tags = ["Devices"];
+const tags = ["Device Roles"];
 
-export const allDevices = createRoute({
+export const allDeviceRoles = createRoute({
   tags,
-  path: "/devices",
+  path: "/roles/device",
   method: "get",
   security: [{ bearerAuth: [] }],
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
-      z.array(selectDevicesSchema),
-      "The list of devices",
+      z.array(selectDeviceRolesSchema),
+      "The list of device roles",
     ),
   },
 });
 
-export const createDevice = createRoute({
+export const createDeviceRole = createRoute({
   tags,
-  path: "/devices",
+  path: "/roles/device",
   method: "post",
   security: [{ bearerAuth: [] }],
   request: {
     body: jsonContentRequired(
-      insertNewDeviceSchema,
-      "The device to create",
+      insertNewDeviceRoleSchema,
+      "The device role to create",
     ),
   },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
-      selectNewDeviceSchema,
-      "The created device",
+      selectNewDeviceRoleSchema,
+      "The created device role",
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
-      createErrorSchema(selectNewDeviceSchema),
+      createErrorSchema(selectNewDeviceRoleSchema),
       "The validation error(s)",
     ),
   },
 });
 
-export const getDevice = createRoute({
+export const getDeviceRole = createRoute({
   tags,
-  path: "/devices/{slug}",
+  path: "/roles/device/{id}",
   method: "get",
   security: [{ bearerAuth: [] }],
   request: {
-    params: SlugParamsSchema,
+    params: IdParamsSchema,
   },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
-      selectDevicesSchema,
-      "The requested device",
+      selectDeviceRolesSchema,
+      "The requested device role",
     ),
     [HttpStatusCodes.NOT_FOUND]: jsonContent(
       notFoundSchema,
-      "Device not found",
+      "DeviceRole not found",
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(IdParamsSchema),
@@ -68,75 +68,75 @@ export const getDevice = createRoute({
   },
 });
 
-export const patchDevice = createRoute({
+export const patchDeviceRole = createRoute({
   tags,
-  path: "/devices/{id}",
+  path: "/roles/device/{id}",
   method: "patch",
   security: [{ bearerAuth: [] }],
   request: {
     params: IdParamsSchema,
     body: jsonContentRequired(
-      patchDeviceSchema,
-      "The device updates",
+      patchDeviceRoleSchema,
+      "The device role updates",
     ),
   },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
-      selectDevicesSchema,
-      "The updated device",
+      selectDeviceRolesSchema,
+      "The updated device role",
     ),
     [HttpStatusCodes.NOT_FOUND]: jsonContent(
       notFoundSchema,
-      "Device not found",
+      "DeviceRole not found",
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
-      createErrorSchema(patchDeviceSchema)
+      createErrorSchema(patchDeviceRoleSchema)
         .or(createErrorSchema(IdParamsSchema)),
       "The validation error(s)",
     ),
   },
 });
 
-export type AllDevicesRoute = typeof allDevices;
-export type CreateDeviceRoute = typeof createDevice;
-export type GetDeviceRoute = typeof getDevice;
-export type PatchDeviceRoute = typeof patchDevice;
+export type AllDeviceRolesRoute = typeof allDeviceRoles;
+export type CreateDeviceRoleRoute = typeof createDeviceRole;
+export type GetDeviceRoleRoute = typeof getDeviceRole;
+export type PatchDeviceRoleRoute = typeof patchDeviceRole;
 
-export const createDeviceStatus = createRoute({
+export const createDeviceRoleStatus = createRoute({
   tags,
-  path: "/devices/status",
+  path: "/roles/device/status",
   method: "post",
   security: [{ bearerAuth: [] }],
   request: {
     body: jsonContentRequired(
-      insertDeviceStatusSchema,
-      "The status to update a device",
+      insertDeviceRoleStatusSchema,
+      "The status to update a device role",
     ),
   },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
-      selectDeviceStatusSchema,
+      selectDeviceRoleStatusSchema,
       "The created status",
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
-      createErrorSchema(selectDeviceStatusSchema),
+      createErrorSchema(selectDeviceRoleStatusSchema),
       "The validation error(s)",
     ),
   },
 });
 
-export const getDeviceStatus = createRoute({
+export const getDeviceRoleStatus = createRoute({
   tags,
-  path: "/devices/status/{slug}",
+  path: "/roles/device/status/{id}",
   method: "get",
   security: [{ bearerAuth: [] }],
   request: {
-    params: SlugParamsSchema,
+    params: IdParamsSchema,
   },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
-      selectDeviceStatusSchema,
-      "The requested status of a device",
+      selectDeviceRoleStatusSchema,
+      "The requested status of a device role",
     ),
     [HttpStatusCodes.NOT_FOUND]: jsonContent(
       notFoundSchema,
@@ -149,5 +149,5 @@ export const getDeviceStatus = createRoute({
   },
 });
 
-export type CreateDeviceStatusRoute = typeof createDeviceStatus;
-export type GetDeviceStatusRoute = typeof getDeviceStatus;
+export type CreateDeviceRoleStatusRoute = typeof createDeviceRoleStatus;
+export type GetDeviceRoleStatusRoute = typeof getDeviceRoleStatus;

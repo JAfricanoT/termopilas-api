@@ -4,7 +4,7 @@ import z from "zod";
 
 import { toZodV4SchemaTyped } from "@/lib/zod-utils";
 
-import { device_roles } from "../roles/schema";
+import { device_roles } from "../roles/device/schema";
 import { users } from "../users/schema";
 
 export const devices = pgTable("devices", {
@@ -23,7 +23,7 @@ export const device_status = pgTable("device_status", {
   created_at: timestamp().defaultNow(),
 });
 
-export const selectDeviceSchema = toZodV4SchemaTyped(createSelectSchema(devices));
+export const selectDevicesSchema = toZodV4SchemaTyped(createSelectSchema(devices));
 export const insertDeviceSchema = toZodV4SchemaTyped(createInsertSchema(devices)
   .required({
     device_id: true,
@@ -48,7 +48,7 @@ export const insertDeviceStatusSchema = toZodV4SchemaTyped(createInsertSchema(de
   }));
 
 export const selectNewDeviceSchema = z.object({
-  device: selectDeviceSchema,
+  device: selectDevicesSchema,
   status: selectDeviceStatusSchema.optional(),
 });
 export const insertNewDeviceSchema = z.object({
