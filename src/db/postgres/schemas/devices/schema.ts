@@ -4,6 +4,7 @@ import z from "zod";
 
 import { toZodV4SchemaTyped } from "@/lib/zod-utils";
 
+import { actions } from "../actions/schema";
 import { device_roles } from "../roles/device/schema";
 import { users } from "../users/schema";
 
@@ -22,6 +23,15 @@ export const device_status = pgTable("device_status", {
   created_by: integer().notNull().references(() => users.id),
   created_at: timestamp().defaultNow(),
 });
+
+export const device_action_mode = pgTable("device_action_status", {
+  id: serial().primaryKey().notNull(),
+  device_id: integer().notNull().references(() => devices.id),
+  action_id: integer().notNull().references(() => actions.id),
+  created_by: integer().notNull().references(() => users.id),
+  created_at: timestamp().defaultNow(),
+});
+
 
 export const selectDevicesSchema = toZodV4SchemaTyped(createSelectSchema(devices));
 export const insertDeviceSchema = toZodV4SchemaTyped(createInsertSchema(devices)
