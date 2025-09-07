@@ -1,10 +1,12 @@
 import { createRouter } from "@/lib/create-app";
 import { authMiddleware } from "@/middlewares/auth-middleware";
 
+import * as handlers from "./execute.handlers";
+import * as routes from "./execute.routes";
 
-const actionRouter = createRouter();
-actionRouter.use(authMiddleware);
-actionRouter
-  // .openapi(routes.executeAction, handlers.executeAction)
+const executeActionRouter = createRouter();
+executeActionRouter.use(authMiddleware);
+executeActionRouter
+  .openapi(routes.executeAction, handlers.executeAction)
 
-export default actionRouter;
+export default executeActionRouter;

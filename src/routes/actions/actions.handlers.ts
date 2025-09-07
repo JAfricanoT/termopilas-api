@@ -18,12 +18,16 @@ export const allActions: AppRouteHandler<AllActionsRoute> = async (c) => {
 
 export const createAction: AppRouteHandler<CreateActionRoute> = async (c) => {
   const { action, status } = c.req.valid("json");
+  console.log({ action, status });
   const [insertedAction] = await postgres
     .insert(actions)
     .values(action)
     .returning();
   // FIX: El action_id deberia ser opcional cuando se crea el action
+  console.log(status.action_id)
   status.action_id = insertedAction.id;
+  console.log(status.action_id)
+
   const [insertedStatus] = await postgres
     .insert(action_status)
     .values(status)

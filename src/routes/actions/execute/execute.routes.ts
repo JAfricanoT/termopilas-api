@@ -1,9 +1,10 @@
-import { createRoute } from "@hono/zod-openapi";
+import { createRoute, z } from "@hono/zod-openapi";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import { jsonContent, jsonContentRequired } from "stoker/openapi/helpers";
-import { createErrorSchema } from "stoker/openapi/schemas";
+import { createErrorSchema, IdParamsSchema } from "stoker/openapi/schemas";
 
-import { insertNewActionSchema, selectNewActionSchema } from "@/db/postgres/schemas/actions/schema";
+import { selectIdentifierLogsSchema, selectTemporaryIdentifierLogsSchema } from "@/db/postgres/schemas/logs/schema";
+import { notFoundSchema } from "@/lib/constants";
 
 const tags = ["Actions"];
 
@@ -14,18 +15,25 @@ export const executeAction = createRoute({
   security: [{ bearerAuth: [] }],
   request: {
     body: jsonContentRequired(
-      insertNewActionSchema,
+      z.object({
+        device_id: z.string(),
+        identifier_id: z.string(),
+      }),
       "The action to execute",
     ),
   },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
-      selectNewActionSchema,
+      selectIdentifierLogsSchema.or(selectTemporaryIdentifierLogsSchema),
       "The action executed",
     ),
+    [HttpStatusCodes.NOT_FOUND]: jsonContent(
+      notFoundSchema,
+      "Device not found",
+    ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
-      createErrorSchema(selectNewActionSchema),
-      "The validation error(s)",
+      createErrorSchema(IdParamsSchema),
+      "Invalid id error",
     ),
   },
 });

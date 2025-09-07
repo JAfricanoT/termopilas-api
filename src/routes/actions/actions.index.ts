@@ -8,7 +8,7 @@ const actionRouter = createRouter();
 actionRouter.use(authMiddleware);
 actionRouter
   .openapi(routes.allActions, handlers.allActions)
-  // .openapi(routes.createAction, handlers.createAction)
+  .openapi(routes.createAction, handlers.createAction)
   .openapi(routes.getAction, handlers.getAction)
   .openapi(routes.patchAction, handlers.patchAction);
 
