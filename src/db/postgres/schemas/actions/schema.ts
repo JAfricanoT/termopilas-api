@@ -1,6 +1,6 @@
 import { boolean, integer, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
 
-import { device_roles, user_roles } from "../roles/schema";
+import { device_roles, user_roles } from "../roles/user/schema";
 import { users } from "../users/schema";
 
 export const actions = pgTable("actions", {

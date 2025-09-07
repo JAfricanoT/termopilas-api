@@ -4,7 +4,7 @@ import z from "zod";
 
 import { toZodV4SchemaTyped } from "@/lib/zod-utils";
 
-import { user_roles } from "../roles/schema";
+import { user_roles } from "../roles/user/schema";
 
 export const users = pgTable("users", {
   id: serial().primaryKey(),
