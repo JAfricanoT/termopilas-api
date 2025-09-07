@@ -1,13 +1,41 @@
 import postgres from "@/db/postgres/postgres";
+import { action_device_roles, actions } from "@/db/postgres/schemas/actions/schema";
 import { devices } from "@/db/postgres/schemas/devices/schema";
 import { identifiers } from "@/db/postgres/schemas/identifiers/schema";
 import { temporary_identifier_bearer_status, temporary_identifier_bearers, temporary_identifiers } from "@/db/postgres/schemas/identifiers/temporary/schema";
 import { temporary_identifier_logs } from "@/db/postgres/schemas/logs/schema";
 import { users } from "@/db/postgres/schemas/users/schema";
 import type { AppRouteHandler } from "@/lib/types";
-import { asc, desc, eq } from "drizzle-orm";
+import { asc, desc, eq, inArray } from "drizzle-orm";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import type { ExecuteActionRoute } from "./execute.routes";
+
+const PEDESTRIAN_ACTIONS = new Set([
+  'PedestrianEntry',
+  'PedestrianExit',
+  'PedestrianEntryExit',
+])
+
+
+const VEHICLE_ACTIONS = new Set([
+  'VehicleEntry',
+  'VehicleExit',
+  'VehicleEntryExit',
+])
+
+const ENTRY_ACTIONS = new Set([
+  'PedestrianEntry',
+  'PedestrianEntryExit',
+  'VehicleEntry',
+  'VehicleEntryExit',
+])
+
+const EXIT_ACTIONS = new Set([
+  'PedestrianExit',
+  'PedestrianEntryExit',
+  'VehicleExit',
+  'VehicleEntryExit',
+])
 
 export const executeAction: AppRouteHandler<ExecuteActionRoute> = async (c) => {
   const action = c.req.valid("json");
@@ -44,6 +72,7 @@ export const executeAction: AppRouteHandler<ExecuteActionRoute> = async (c) => {
     .limit(1);
 
   if (!identifier) {
+    c.var.logger.info("")
     console.log("Identifier not found");
     console.log(action.identifier_id);
     const [temporaryIdentifier] = await postgres
@@ -143,8 +172,14 @@ export const executeAction: AppRouteHandler<ExecuteActionRoute> = async (c) => {
       .orderBy(asc(temporary_identifier_logs.id))
       .limit(1);
 
-    
+    const deviceRoleActions = await postgres.select().from(action_device_roles).where(eq(action_device_roles.id, device.role_id));
+    const deviceActions = await postgres.select().from(actions).where(inArray(actions.id, deviceRoleActions.map(dra => dra.action_id)))
+    const deviceActionsNames = new Set(deviceActions.map(da => da.name));
 
+    const canEntry = (ENTRY_ACTIONS.intersection(deviceActionsNames)).size > 0;
+    const canExit = (EXIT_ACTIONS.intersection(deviceActionsNames)).size > 0;
+    const canPedestrian = (PEDESTRIAN_ACTIONS.intersection(deviceActionsNames)).size > 0;
+    const canVehicle = (VEHICLE_ACTIONS.intersection(deviceActionsNames)).size > 0;
 
     const executedAction = {
       id: 1,
