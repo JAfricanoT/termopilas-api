@@ -176,10 +176,10 @@ export const executeAction: AppRouteHandler<ExecuteActionRoute> = async (c) => {
     const deviceActions = await postgres.select().from(actions).where(inArray(actions.id, deviceRoleActions.map(dra => dra.action_id)))
     const deviceActionsNames = new Set(deviceActions.map(da => da.name));
 
-    const canEntry = (ENTRY_ACTIONS.intersection(deviceActionsNames)).size > 0;
-    const canExit = (EXIT_ACTIONS.intersection(deviceActionsNames)).size > 0;
-    const canPedestrian = (PEDESTRIAN_ACTIONS.intersection(deviceActionsNames)).size > 0;
-    const canVehicle = (VEHICLE_ACTIONS.intersection(deviceActionsNames)).size > 0;
+    const deviceAllowsEntry = (ENTRY_ACTIONS.intersection(deviceActionsNames)).size > 0;
+    const deviceAllowsExit = (EXIT_ACTIONS.intersection(deviceActionsNames)).size > 0;
+    const deviceAllowsPedestrian = (PEDESTRIAN_ACTIONS.intersection(deviceActionsNames)).size > 0;
+    const deviceAllowsVehicle = (VEHICLE_ACTIONS.intersection(deviceActionsNames)).size > 0;
 
     const executedAction = {
       id: 1,
