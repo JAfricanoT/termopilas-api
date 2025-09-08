@@ -6,7 +6,7 @@ import { temporary_identifier_bearer_status, temporary_identifier_bearers, tempo
 import { identifier_logs, temporary_identifier_logs } from "@/db/postgres/schemas/logs/schema";
 import { users } from "@/db/postgres/schemas/users/schema";
 import type { AppRouteHandler } from "@/lib/types";
-import { asc, desc, eq, inArray } from "drizzle-orm";
+import { and, asc, desc, eq, inArray } from "drizzle-orm";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import type { ExecuteActionRoute } from "./execute.routes";
 
@@ -91,8 +91,8 @@ export const executeAction: AppRouteHandler<ExecuteActionRoute> = async (c) => {
 
   const deviceAllowsEntry = (ENTRY_ACTIONS.filter(item => deviceActionsNames.includes(item))).length > 0;
   const deviceAllowsExit = (EXIT_ACTIONS.filter(item => deviceActionsNames.includes(item))).length > 0;
-  const deviceAllowsPedestrian = (PEDESTRIAN_ACTIONS.filter(item => deviceActionsNames.includes(item))).length > 0;
   const deviceAllowsVehicle = (VEHICLE_ACTIONS.filter(item => deviceActionsNames.includes(item))).length > 0;
+  // const deviceAllowsPedestrian = (PEDESTRIAN_ACTIONS.filter(item => deviceActionsNames.includes(item))).length > 0;
 
   const [identifier] = await postgres
     .select({
@@ -106,8 +106,27 @@ export const executeAction: AppRouteHandler<ExecuteActionRoute> = async (c) => {
     .orderBy(asc(identifiers.id))
     .limit(1);
 
+
+  let canEntry = false;
+  let canExit = false;
+  let isPedestrian = false;
+  let isVehicle = false;
+  let isTemp = false;
+  let userLastActionName = null;
+  let temporaryIdentifierId = null;
+
+  const allActions = await postgres.select().from(actions)
+  const pedestrianActions = allActions.filter(a => PEDESTRIAN_ACTIONS.includes(a.name))
+  const vehiclesActions = allActions.filter(a => VEHICLE_ACTIONS.includes(a.name))
+  const PEDESTRIAN_ENTRY_ID = allActions.find(a => a.name == 'PedestrianEntry')!.id
+  const PEDESTRIAN_EXIT_ID = allActions.find(a => a.name == 'PedestrianExit')!.id
+
+  const VEHICLE_ENTRY_ID = allActions.find(a => a.name == 'VehicleEntry')!.id
+  const VEHICLE_EXIT_ID = allActions.find(a => a.name == 'VehicleExit')!.id
+
   //! IDENTIFICADOR TEMPORAL
   if (!identifier) {
+    c.var.logger.warn("Identifier %d not found", action.identifier_id)
     const [temporaryIdentifier] = await postgres
       .select({
         id: temporary_identifiers.id,
@@ -200,6 +219,57 @@ export const executeAction: AppRouteHandler<ExecuteActionRoute> = async (c) => {
       })
       .from(users)
       .where(eq(users.id, temporaryIdentifierBearer.user_id))
+      .orderBy(desc(users.id))
+      .limit(1);
+
+    const userRoleActions = await postgres
+      .select()
+      .from(action_device_roles)
+      .where(eq(action_device_roles.id, userRole.role_id));
+
+    const userActions = await postgres
+      .select()
+      .from(actions)
+      .where(inArray(actions.id, userRoleActions.map(ura => ura.action_id)))
+
+    const userActionsNames = userActions.map(ua => ua.name);
+
+    canEntry = (ENTRY_ACTIONS.filter(item => userActionsNames.includes(item))).length > 0;
+    canExit = (EXIT_ACTIONS.filter(item => userActionsNames.includes(item))).length > 0;
+    isPedestrian = (PEDESTRIAN_ACTIONS.filter(item => userActionsNames.includes(item))).length > 0;
+    isVehicle = (VEHICLE_ACTIONS.filter(item => userActionsNames.includes(item))).length > 0;
+    isTemp = true;
+    temporaryIdentifierId = temporaryIdentifierBearer.id
+
+    const tempUserLastActions = await postgres
+      .select({
+        device_id: identifier_logs.device_id,
+        action_id: identifier_logs.action_id,
+      })
+      .from(temporary_identifier_logs)
+      .where(
+        and(
+          eq(temporary_identifier_logs.temporary_identifier_bearer_id, temporaryIdentifierBearer.id),
+          inArray(temporary_identifier_logs.action_id,
+            !deviceAllowsVehicle ? pedestrianActions.map(a => a.id) : vehiclesActions.map(a => a.id)
+          )
+        )
+      )
+      .orderBy(desc(identifier_logs.id))
+      .limit(1);
+
+    const tempUserLastAction = tempUserLastActions.length > 0 ? tempUserLastActions[0] : null
+
+    userLastActionName = tempUserLastAction ? allActions.find(a => a.id == tempUserLastAction?.action_id)?.name : null
+  } else {
+    //! IDENTIFICADOR PERMANENT
+    const [userRole] = await postgres
+      .select({
+        lida_id: users.lida_id,
+        role_id: users.role_id,
+      })
+      .from(users)
+      .where(eq(users.id, identifier.user_id))
       .orderBy(asc(users.id))
       .limit(1);
 
@@ -215,292 +285,35 @@ export const executeAction: AppRouteHandler<ExecuteActionRoute> = async (c) => {
 
     const userActionsNames = userActions.map(ua => ua.name);
 
-    const canEntry = (ENTRY_ACTIONS.filter(item => userActionsNames.includes(item))).length > 0;
-    const canExit = (EXIT_ACTIONS.filter(item => userActionsNames.includes(item))).length > 0;
-    const isPedestrian = (PEDESTRIAN_ACTIONS.filter(item => userActionsNames.includes(item))).length > 0;
-    const isVehicle = (VEHICLE_ACTIONS.filter(item => userActionsNames.includes(item))).length > 0;
+    canEntry = (ENTRY_ACTIONS.filter(item => userActionsNames.includes(item))).length > 0;
+    canExit = (EXIT_ACTIONS.filter(item => userActionsNames.includes(item))).length > 0;
+    isPedestrian = (PEDESTRIAN_ACTIONS.filter(item => userActionsNames.includes(item))).length > 0;
+    isVehicle = (VEHICLE_ACTIONS.filter(item => userActionsNames.includes(item))).length > 0;
 
-    const [userLastAction] = await postgres
+    const userLastActions = await postgres
       .select({
-        device_id: temporary_identifier_logs.device_id,
-        action_id: temporary_identifier_logs.action_id,
+        device_id: identifier_logs.device_id,
+        action_id: identifier_logs.action_id,
       })
-      .from(temporary_identifier_logs)
-      .where(eq(temporary_identifier_logs.temporary_identifier_bearer_id, temporaryIdentifierBearer.id))
-      .orderBy(desc(temporary_identifier_logs.id))
+      .from(identifier_logs)
+      .where(and(
+        eq(identifier_logs.identifier_id, identifier.id),
+        inArray(identifier_logs.action_id,
+          !deviceAllowsVehicle ? pedestrianActions.map(a => a.id) : vehiclesActions.map(a => a.id)
+        )
+      ))
+      .orderBy(desc(identifier_logs.id))
       .limit(1);
 
-    //! NO EXISTE ULTIMA ACCION TEMPORARY IDENTIFIER
-    if (!userLastAction) {
+    const userLastAction = userLastActions.length > 0 ? userLastActions[0] : null
 
-      if (isVehicle && !deviceAllowsVehicle) {
-        return c.json(
-          {
-            message: "Action not allowed - Vehicle not allowed",
-          },
-          HttpStatusCodes.NOT_FOUND,
-        );
-      }
-
-      if (isPedestrian && !deviceAllowsPedestrian) {
-        return c.json(
-          {
-            message: "Action not allowed - Pedestrian not allowed",
-          },
-          HttpStatusCodes.NOT_FOUND,
-        );
-      }
-
-      if (canEntry && !deviceAllowsEntry) {
-        return c.json(
-          {
-            message: "Action not allowed - Entry not allowed",
-          },
-          HttpStatusCodes.NOT_FOUND,
-        );
-      }
-
-      if (canExit && !deviceAllowsExit) {
-        return c.json(
-          {
-            message: "Action not allowed - Exit not allowed",
-          },
-          HttpStatusCodes.NOT_FOUND,
-        );
-      }
-
-      if (isPedestrian && canEntry) {
-        const [insertedAction] = await postgres
-          .insert(temporary_identifier_logs)
-          .values({
-            temporary_identifier_bearer_id: temporaryIdentifierBearer.id,
-            device_id: device.id,
-            action_id: 1,
-          })
-          .returning();
-        return c.json(insertedAction, HttpStatusCodes.OK);
-      }
-
-      // if (isPedestrian && canExit) {
-      //   const [insertedAction] = await postgres
-      //     .insert(temporary_identifier_logs)
-      //     .values({
-      //       temporary_identifier_bearer_id: temporaryIdentifierBearer.id,
-      //       device_id: device.id,
-      //       action_id: 2,
-      //     })
-      //     .returning();
-      //   return c.json(insertedAction, HttpStatusCodes.OK);
-      // }
-
-      if (isVehicle && canEntry) {
-        const [insertedAction] = await postgres
-          .insert(temporary_identifier_logs)
-          .values({
-            temporary_identifier_bearer_id: temporaryIdentifierBearer.id,
-            device_id: device.id,
-            action_id: 4,
-          })
-          .returning();
-        return c.json(insertedAction, HttpStatusCodes.OK);
-      }
-
-      // if (isVehicle && canExit) {
-      //   const [insertedAction] = await postgres
-      //     .insert(temporary_identifier_logs)
-      //     .values({
-      //       temporary_identifier_bearer_id: temporaryIdentifierBearer.id,
-      //       device_id: device.id,
-      //       action_id: 5,
-      //     })
-      //     .returning();
-      //   return c.json(insertedAction, HttpStatusCodes.OK);
-      // }
-
-      return c.json(
-        {
-          message: "Action not allowed",
-        },
-        HttpStatusCodes.NOT_FOUND,
-      );
-    }
-
-    const [userLastActionName] = await postgres
-      .select({
-        name: actions.name,
-      })
-      .from(actions)
-      .where(eq(actions.id, userLastAction.action_id))
-      .orderBy(desc(actions.id))
-      .limit(1);
-
-    console.log("LAST ACTION", userLastActionName.name);
-
-    //! ENTRADA
-    if (userLastActionName.name == "PedestrianEntry") {
-      if (isVehicle && !deviceAllowsVehicle) {
-        return c.json(
-          {
-            message: "Action not allowed - Vehicle not allowed",
-          },
-          HttpStatusCodes.NOT_FOUND,
-        );
-      }
-
-      if (isPedestrian && !deviceAllowsPedestrian) {
-        return c.json(
-          {
-            message: "Action not allowed - Pedestrian not allowed",
-          },
-          HttpStatusCodes.NOT_FOUND,
-        );
-      }
-
-      if (canEntry && !deviceAllowsEntry) {
-        return c.json(
-          {
-            message: "Action not allowed - Entry not allowed",
-          },
-          HttpStatusCodes.NOT_FOUND,
-        );
-      }
-
-      if (canExit && !deviceAllowsExit) {
-        return c.json(
-          {
-            message: "Action not allowed - Exit not allowed",
-          },
-          HttpStatusCodes.NOT_FOUND,
-        );
-      }
-
-      if (isPedestrian && canEntry) {
-        const [insertedAction] = await postgres
-          .insert(temporary_identifier_logs)
-          .values({
-            temporary_identifier_bearer_id: temporaryIdentifierBearer.id,
-            device_id: device.id,
-            action_id: 1,
-          })
-          .returning();
-        return c.json(insertedAction, HttpStatusCodes.OK);
-      }
-
-      // if (isPedestrian && canExit) {
-      //   const [insertedAction] = await postgres
-      //     .insert(temporary_identifier_logs)
-      //     .values({
-      //       temporary_identifier_bearer_id: temporaryIdentifierBearer.id,
-      //       device_id: device.id,
-      //       action_id: 2,
-      //     })
-      //     .returning();
-      //   return c.json(insertedAction, HttpStatusCodes.OK);
-      // }
-
-      if (isVehicle && canEntry) {
-        const [insertedAction] = await postgres
-          .insert(temporary_identifier_logs)
-          .values({
-            temporary_identifier_bearer_id: temporaryIdentifierBearer.id,
-            device_id: device.id,
-            action_id: 4,
-          })
-          .returning();
-        return c.json(insertedAction, HttpStatusCodes.OK);
-      }
-
-      // if (isVehicle && canExit) {
-      //   const [insertedAction] = await postgres
-      //     .insert(temporary_identifier_logs)
-      //     .values({
-      //       temporary_identifier_bearer_id: temporaryIdentifierBearer.id,
-      //       device_id: device.id,
-      //       action_id: 5,
-      //     })
-      //     .returning();
-      //   return c.json(insertedAction, HttpStatusCodes.OK);
-      // }
-    }
-    // LAST ACTION
-    const wasEntry = (ENTRY_ACTIONS.filter(item => userActionsNames.includes(item))).length > 0;
-    const wasExit = (EXIT_ACTIONS.filter(item => userActionsNames.includes(item))).length > 0;
-    const wasPedestrian = (PEDESTRIAN_ACTIONS.filter(item => userActionsNames.includes(item))).length > 0;
-    const wasVehicle = (VEHICLE_ACTIONS.filter(item => userActionsNames.includes(item))).length > 0;
-
-    const executedAction = {
-      id: 1,
-      identifier_id: 1,
-      device_id: 1,
-      action_id: 1,
-      created_at: new Date(),
-    };
-    return c.json(executedAction, HttpStatusCodes.OK);
+    userLastActionName = userLastAction ? allActions.find(a => a.id == userLastAction?.action_id)?.name : null
   }
 
-  //! IDENTIFICADOR PERMANENT
-  const [userRole] = await postgres
-    .select({
-      lida_id: users.lida_id,
-      role_id: users.role_id,
-    })
-    .from(users)
-    .where(eq(users.id, identifier.user_id))
-    .orderBy(asc(users.id))
-    .limit(1);
+  const isEntry = !userLastActionName || EXIT_ACTIONS.includes(userLastActionName)
 
-  const userRoleActions = await postgres
-    .select()
-    .from(action_device_roles)
-    .where(eq(action_device_roles.id, userRole.role_id));
-
-  const userActions = await postgres
-    .select()
-    .from(actions)
-    .where(inArray(actions.id, userRoleActions.map(ura => ura.action_id)))
-
-  const userActionsNames = userActions.map(ua => ua.name);
-
-  const canEntry = (ENTRY_ACTIONS.filter(item => userActionsNames.includes(item))).length > 0;
-  const canExit = (EXIT_ACTIONS.filter(item => userActionsNames.includes(item))).length > 0;
-  const isPedestrian = (PEDESTRIAN_ACTIONS.filter(item => userActionsNames.includes(item))).length > 0;
-  const isVehicle = (VEHICLE_ACTIONS.filter(item => userActionsNames.includes(item))).length > 0;
-
-  console.log("DEVICE", deviceAllowsEntry, deviceAllowsExit, deviceAllowsPedestrian, deviceAllowsVehicle);
-  console.log("USER", canEntry, canExit, isPedestrian, isVehicle);
-
-  const [userLastAction] = await postgres
-    .select({
-      device_id: identifier_logs.device_id,
-      action_id: identifier_logs.action_id,
-    })
-    .from(identifier_logs)
-    .where(eq(temporary_identifier_logs.temporary_identifier_bearer_id, identifier.id))
-    .orderBy(desc(identifier_logs.id))
-    .limit(1);
-
-  //! NO EXISTE ULTIMA ACCION IDENTIFIER
-  if (!userLastAction) {
-
-    //! ERRORES
-    if (isVehicle && !deviceAllowsVehicle) {
-      return c.json(
-        {
-          message: "Action not allowed - Vehicle not allowed",
-        },
-        HttpStatusCodes.NOT_FOUND,
-      );
-    }
-
-    if (isPedestrian && !deviceAllowsPedestrian) {
-      return c.json(
-        {
-          message: "Action not allowed - Pedestrian not allowed",
-        },
-        HttpStatusCodes.NOT_FOUND,
-      );
-    }
-
+  // !ES UNA ENTRADA
+  if (isEntry) {
     if (canEntry && !deviceAllowsEntry) {
       return c.json(
         {
@@ -509,7 +322,8 @@ export const executeAction: AppRouteHandler<ExecuteActionRoute> = async (c) => {
         HttpStatusCodes.NOT_FOUND,
       );
     }
-
+  } else {
+    // !ES UNA SALIDA
     if (canExit && !deviceAllowsExit) {
       return c.json(
         {
@@ -518,86 +332,55 @@ export const executeAction: AppRouteHandler<ExecuteActionRoute> = async (c) => {
         HttpStatusCodes.NOT_FOUND,
       );
     }
-
-    //! ACCIONES
-    if (isPedestrian && canEntry) {
-
-      return c.json(
-        {
-          id: 1,
-          identifier_id: 1,
-          device_id: 1,
-          action_id: 1,
-          created_at: new Date(),
-        },
-        HttpStatusCodes.OK,
-      );
-    }
-
-    // if (isPedestrian && canExit) {
-    //   return c.json(
-    //     {
-    //       id: 1,
-    //       identifier_id: 1,
-    //       device_id: 1,
-    //       action_id: 2,
-    //       created_at: new Date(),
-    //     },
-    //     HttpStatusCodes.OK,
-    //   );
-    // }
-
-    if (isVehicle && canEntry) {
-      return c.json(
-        {
-          id: 1,
-          identifier_id: 1,
-          device_id: 1,
-          action_id: 4,
-          created_at: new Date(),
-        },
-        HttpStatusCodes.OK,
-      );
-    }
-
-    // if (isVehicle && canExit) {
-    //   return c.json(
-    //     {
-    //       id: 1,
-    //       identifier_id: 1,
-    //       device_id: 1,
-    //       action_id: 5,
-    //       created_at: new Date(),
-    //     },
-    //     HttpStatusCodes.OK,
-    //   );
-    // }
-
-    return c.json(
-      {
-        message: "Action not allowed",
-      },
-      HttpStatusCodes.NOT_FOUND,
-    );
   }
 
-  const [userLastActionName] = await postgres
-    .select({
-      name: actions.name,
+  // !ES VEHICULAR
+  if (!deviceAllowsVehicle) {
+    if (!isVehicle) {
+      return c.json(
+        {
+          message: "Action not allowed - Vehicle not allowed",
+        },
+        HttpStatusCodes.NOT_FOUND,
+      );
+    }
+  } else {
+    // !ES PEATONAL
+    if (!isPedestrian) {
+      return c.json(
+        {
+          message: "Action not allowed - Pedestrian not allowed",
+        },
+        HttpStatusCodes.NOT_FOUND,
+      );
+    }
+  }
+
+
+  // SE SUPONE QUE YA SABES QUE EL USUARIO PUEDE HACER EL REGISTRO QUE VAYA A HACER
+
+  const actionId = isEntry
+    ? (deviceAllowsVehicle ? VEHICLE_ENTRY_ID : PEDESTRIAN_ENTRY_ID)
+    : (deviceAllowsVehicle ? VEHICLE_EXIT_ID : PEDESTRIAN_EXIT_ID);
+
+  if (isTemp) {
+    const [insertedAction] = await postgres
+      .insert(temporary_identifier_logs)
+      .values({
+        temporary_identifier_bearer_id: temporaryIdentifierId!,
+        device_id: device.id,
+        action_id: actionId,
+      })
+      .returning();
+    return c.json(insertedAction, HttpStatusCodes.OK);
+  }
+  const [insertedAction] = await postgres
+    .insert(identifier_logs)
+    .values({
+      identifier_id: identifier.id!,
+      device_id: device.id,
+      action_id: actionId,
     })
-    .from(actions)
-    .where(eq(actions.id, userLastAction.action_id))
-    .orderBy(desc(actions.id))
-    .limit(1);
-
-  console.log("LAST ACTION", userLastActionName.name);
-
-  const executedAction = {
-    id: 1,
-    identifier_id: 1,
-    device_id: 1,
-    action_id: 1,
-    created_at: new Date(),
-  };
-  return c.json(executedAction, HttpStatusCodes.OK);
+    .returning();
+  return c.json(insertedAction, HttpStatusCodes.OK);
 };
