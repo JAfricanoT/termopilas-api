@@ -2,6 +2,7 @@ import { integer, pgTable, serial, timestamp } from "drizzle-orm/pg-core";
 
 import { toZodV4SchemaTyped } from "@/lib/zod-utils";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import z, { boolean } from "zod";
 import { actions } from "../actions/schema";
 import { devices } from "../devices/schema";
 import { identifiers } from "../identifiers/schema";
@@ -44,3 +45,12 @@ export const insertTemporaryIdentifierLogSchema = toZodV4SchemaTyped(createInser
     id: true,
     created_at: true,
   }));
+
+  export const responsesIdentifierLogsSchema = z.object({
+    action: selectIdentifierLogsSchema,
+    isEntry: boolean(),
+  });
+  export const responsesTemporaryIdentifierLogsSchema = z.object({
+    action: selectTemporaryIdentifierLogsSchema,
+    isEntry: boolean(),
+  });
