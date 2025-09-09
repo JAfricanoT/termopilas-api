@@ -24,7 +24,7 @@ export const device_status = pgTable("device_status", {
   created_at: timestamp().defaultNow(),
 });
 
-export const device_action_mode = pgTable("device_action_status", {
+export const device_action_mode = pgTable("device_action_mode", {
   id: serial().primaryKey().notNull(),
   device_id: integer().notNull().references(() => devices.id),
   action_id: integer().notNull().references(() => actions.id),

@@ -25,6 +25,8 @@ export const user_information = pgTable("user_information", {
   id: serial().primaryKey(),
   user_id: integer().notNull().references(() => users.id),
   username: text().unique().notNull(),
+  name: text().notNull(),
+  last_name: text().notNull(),
   identity_number: integer().unique().notNull(),
   modified_at: timestamp().defaultNow().$onUpdate(() => new Date()).notNull(),
   created_at: timestamp().defaultNow(),

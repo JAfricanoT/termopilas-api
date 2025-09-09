@@ -1,10 +1,11 @@
 import configureOpenAPI from "@/lib/configure-open-api";
 import createApp from "@/lib/create-app";
 import actions from "@/routes/actions/actions.index";
-import actionsExecute from "@/routes/actions/execute/execute.index";
 import actionsStatus from "@/routes/actions/status/status.index";
 import devices from "@/routes/devices/devices.index";
 import devicesStatus from "@/routes/devices/status/status.index";
+import gateExecute from "@/routes/gates/execute/execute.index";
+import gates from "@/routes/gates/gates.index";
 import identifiers from "@/routes/identifiers/identifiers.index";
 import identifiersStatus from "@/routes/identifiers/status/status.index";
 import temporaryIdentifiersBearers from "@/routes/identifiers/temporary/bearers/bearer.index";
@@ -27,9 +28,10 @@ configureOpenAPI(app);
 
 const routes = [
   index,
-  actionsExecute,
   actionsStatus,
   actions,
+  gateExecute,
+  gates,
   usersInfo,
   usersStatus,
   users,
@@ -51,6 +53,15 @@ const routes = [
 routes.forEach((route) => {
   app.route("/", route);
 });
+
+// // Create HTTP server for both HTTP and WebSocket
+// const server = serve({
+//   fetch: app.fetch,
+//   port: 3000,
+// });
+
+// // Initialize WebSocket server with the HTTP server
+// initializeWebSocketServer(server);
 
 export type AppType = typeof routes[number];
 

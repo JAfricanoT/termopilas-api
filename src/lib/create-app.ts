@@ -8,6 +8,7 @@ import { defaultHook } from "stoker/openapi";
 
 import { pinoLogger } from "@/middlewares/pino-logger";
 
+import { cors } from "hono/cors";
 import type { AppBindings, AppOpenAPI } from "./types";
 
 export function createRouter() {
@@ -26,6 +27,10 @@ export default function createApp() {
   app.use(requestId())
     .use("/favicon.ico", serveStatic({ path: "./favicon.ico" }))
     .use("*", serveStatic({ root: "./static" }))
+    .use(cors({
+      origin: 'http://localhost:3000', // o '*' para cualquier origen
+    }))
+    // .use('*', corsMiddleware)
     // .use(serveEmojiFavicon("📝"))
     .use(pinoLogger());
   app.notFound(notFound);

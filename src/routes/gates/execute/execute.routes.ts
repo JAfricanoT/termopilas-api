@@ -3,14 +3,14 @@ import * as HttpStatusCodes from "stoker/http-status-codes";
 import { jsonContent, jsonContentRequired } from "stoker/openapi/helpers";
 import { createErrorSchema, IdParamsSchema } from "stoker/openapi/schemas";
 
-import { selectIdentifierLogsSchema, selectTemporaryIdentifierLogsSchema } from "@/db/postgres/schemas/logs/schema";
+import { responsesIdentifierLogsSchema, responsesTemporaryIdentifierLogsSchema } from "@/db/postgres/schemas/logs/schema";
 import { notFoundSchema } from "@/lib/constants";
 
-const tags = ["Actions"];
+const tags = ["Gates"];
 
 export const executeAction = createRoute({
   tags,
-  path: "/actions/execute",
+  path: "/gates/execute",
   method: "post",
   security: [{ bearerAuth: [] }],
   request: {
@@ -24,7 +24,7 @@ export const executeAction = createRoute({
   },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
-      selectIdentifierLogsSchema.or(selectTemporaryIdentifierLogsSchema),
+      responsesIdentifierLogsSchema.or(responsesTemporaryIdentifierLogsSchema),
       "The action executed",
     ),
     [HttpStatusCodes.NOT_FOUND]: jsonContent(
